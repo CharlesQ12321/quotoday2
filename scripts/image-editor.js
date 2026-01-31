@@ -63,12 +63,18 @@ class ImageEditor {
         // 清除现有手柄
         cropArea.querySelectorAll('.resize-handle').forEach(handle => handle.remove());
 
-        // 创建四个角的调整手柄
+        // 创建四个角和四条边的调整手柄
         const handles = [
+            // 四个角
             { className: 'resize-handle top-left', style: 'top: -4px; left: -4px; cursor: nwse-resize;' },
             { className: 'resize-handle top-right', style: 'top: -4px; right: -4px; cursor: nesw-resize;' },
             { className: 'resize-handle bottom-left', style: 'bottom: -4px; left: -4px; cursor: nesw-resize;' },
-            { className: 'resize-handle bottom-right', style: 'bottom: -4px; right: -4px; cursor: nwse-resize;' }
+            { className: 'resize-handle bottom-right', style: 'bottom: -4px; right: -4px; cursor: nwse-resize;' },
+            // 四条边
+            { className: 'resize-handle top', style: 'top: -4px; left: 50%; transform: translateX(-50%); cursor: ns-resize;' },
+            { className: 'resize-handle bottom', style: 'bottom: -4px; left: 50%; transform: translateX(-50%); cursor: ns-resize;' },
+            { className: 'resize-handle left', style: 'left: -4px; top: 50%; transform: translateY(-50%); cursor: ew-resize;' },
+            { className: 'resize-handle right', style: 'right: -4px; top: 50%; transform: translateY(-50%); cursor: ew-resize;' }
         ];
 
         handles.forEach(handleConfig => {
@@ -212,6 +218,20 @@ class ImageEditor {
                 newWidth = Math.max(50, this.startWidth + deltaX);
                 newHeight = Math.max(50, this.startHeight + deltaY);
                 break;
+            case 'resize-handle top':
+                newHeight = Math.max(50, this.startHeight - deltaY);
+                newTop = Math.min(this.startTop + deltaY, imgRect.height - newHeight);
+                break;
+            case 'resize-handle bottom':
+                newHeight = Math.max(50, this.startHeight + deltaY);
+                break;
+            case 'resize-handle left':
+                newWidth = Math.max(50, this.startWidth - deltaX);
+                newLeft = Math.min(this.startLeft + deltaX, imgRect.width - newWidth);
+                break;
+            case 'resize-handle right':
+                newWidth = Math.max(50, this.startWidth + deltaX);
+                break;
         }
 
         // 限制在图片范围内
@@ -319,10 +339,68 @@ class ImageEditor {
                     canvas.height
                 );
 
+                // 压缩图片
+                const compressedData = this.compressImage(canvas);
+                
                 // 返回裁剪后的图片数据
-                resolve(canvas.toDataURL('image/jpeg'));
+                resolve(compressedData);
             };
             img.src = previewImg.src;
+        });
+    }
+
+    // 压缩图片
+    compressImage(canvas) {
+        // 设置压缩质量（0-1之间，值越大质量越高）
+        const quality = 0.7;
+        
+        // 获取压缩后的图片数据
+        const compressedData = canvas.toDataURL('image/jpeg', quality);
+        
+        return compressedData;
+    }
+
+    // 压缩上传的图片
+    compressUploadedImage(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    // 创建Canvas元素
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // 计算压缩后的尺寸
+                    const maxWidth = 1200;
+                    const maxHeight = 1200;
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > maxWidth) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
+                    }
+                    
+                    if (height > maxHeight) {
+                        width = (width * maxHeight) / height;
+                        height = maxHeight;
+                    }
+                    
+                    // 设置Canvas尺寸
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    // 绘制压缩后的图片
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // 压缩图片
+                    const compressedData = this.compressImage(canvas);
+                    resolve(compressedData);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
         });
     }
 }

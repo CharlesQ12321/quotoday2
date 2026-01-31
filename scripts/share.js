@@ -79,10 +79,26 @@ class ShareService {
 
     // 使用Web Share API分享
     shareWithWebShare(imageData, bookmark) {
-        // 由于Web Share API不支持直接分享base64图片，我们需要先下载图片
-        this.downloadImage(imageData, `bookmark-${bookmark.id}.png`).then(() => {
-            alert('图片已下载，请手动分享');
-        });
+        // 检查是否支持Web Share API
+        if (navigator.share) {
+            // 尝试直接分享文本内容
+            navigator.share({
+                title: bookmark.title,
+                text: `${bookmark.content} - ${bookmark.author}`,
+                url: window.location.origin
+            }).catch(err => {
+                console.error('分享失败:', err);
+                // 回退到下载图片
+                this.downloadImage(imageData, `bookmark-${bookmark.id}.png`).then(() => {
+                    app.showSuccessToast('图片已下载，请手动分享');
+                });
+            });
+        } else {
+            // 回退到下载图片
+            this.downloadImage(imageData, `bookmark-${bookmark.id}.png`).then(() => {
+                app.showSuccessToast('图片已下载，请手动分享');
+            });
+        }
     }
 
     // 分享回退方案
@@ -260,8 +276,63 @@ class ShareService {
 
     // 导出为PDF
     exportToPDF(bookmark) {
-        // 这里可以使用jsPDF等库实现
-        alert('PDF导出功能开发中');
+        try {
+            app.showLoading('正在生成PDF...');
+            
+            // 创建PDF文档
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // 设置字体
+            doc.setFont('helvetica');
+            
+            // 添加标题
+            doc.setFontSize(18);
+            doc.text(bookmark.title, 20, 20);
+            
+            // 添加作者
+            doc.setFontSize(12);
+            doc.text(`作者: ${bookmark.author}`, 20, 30);
+            
+            // 添加内容
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            
+            // 计算内容区域
+            const content = bookmark.content;
+            const pageHeight = doc.internal.pageSize.height;
+            const pageWidth = doc.internal.pageSize.width;
+            const margin = 20;
+            const maxWidth = pageWidth - margin * 2;
+            const lineHeight = 8;
+            let yPosition = 45;
+            
+            // 分段文本
+            const lines = doc.splitTextToSize(content, maxWidth);
+            lines.forEach(line => {
+                if (yPosition > pageHeight - margin) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+                doc.text(line, margin, yPosition);
+                yPosition += lineHeight;
+            });
+            
+            // 添加页码和日期
+            doc.setFontSize(10);
+            doc.text(`第 ${bookmark.page} 页`, 20, pageHeight - 20);
+            doc.text(`创建时间: ${new Date(bookmark.created_at).toLocaleString()}`, 100, pageHeight - 20);
+            
+            // 保存PDF
+            doc.save(`bookmark-${bookmark.id}.pdf`);
+            
+            app.hideLoading();
+            app.showSuccessToast('PDF已导出');
+        } catch (error) {
+            console.error('PDF导出失败:', error);
+            app.hideLoading();
+            app.showErrorToast('PDF导出失败，请稍后重试');
+        }
     }
 
     // 导出为文本

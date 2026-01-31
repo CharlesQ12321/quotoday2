@@ -249,15 +249,25 @@ class StorageManager {
     // 导入数据
     importData(jsonData) {
         try {
+            // 验证JSON格式
+            if (!jsonData || typeof jsonData !== 'string') {
+                throw new Error('无效的JSON数据');
+            }
+            
             const importData = JSON.parse(jsonData);
             
             // 验证数据格式
-            if (!importData || !importData.version || !importData.export_date || !importData.data) {
+            if (!importData || typeof importData !== 'object') {
+                throw new Error('无效的数据格式');
+            }
+            
+            // 验证必要字段
+            if (!importData.version || !importData.export_date || !importData.data) {
                 throw new Error('无效的数据格式，缺少必要字段');
             }
             
             // 验证数据结构
-            if (importData.data) {
+            if (importData.data && typeof importData.data === 'object') {
                 // 验证书签格式
                 if (importData.data.bookmarks) {
                     if (!Array.isArray(importData.data.bookmarks)) {
@@ -266,12 +276,23 @@ class StorageManager {
                     
                     // 验证每个书签的必要字段
                     for (const bookmark of importData.data.bookmarks) {
+                        if (!bookmark || typeof bookmark !== 'object') {
+                            throw new Error('书签数据格式错误');
+                        }
                         if (!bookmark.id || !bookmark.title || !bookmark.content || !bookmark.created_at) {
-                            throw new Error('书签数据缺少必要字段');
+                            throw new Error(`书签数据缺少必要字段: ${bookmark.title || '未知书签'}`);
+                        }
+                        // 验证字段类型
+                        if (typeof bookmark.id !== 'string' || typeof bookmark.title !== 'string' || 
+                            typeof bookmark.content !== 'string' || typeof bookmark.created_at !== 'string') {
+                            throw new Error(`书签数据字段类型错误: ${bookmark.title || '未知书签'}`);
                         }
                     }
                     
-                    localStorage.setItem(this.BOOKMARKS_KEY, JSON.stringify(importData.data.bookmarks));
+                    // 处理数据冲突
+                    const existingBookmarks = this.getBookmarks();
+                    const mergedBookmarks = this.mergeBookmarks(existingBookmarks, importData.data.bookmarks);
+                    localStorage.setItem(this.BOOKMARKS_KEY, JSON.stringify(mergedBookmarks));
                 }
                 
                 // 验证标签格式
@@ -282,12 +303,22 @@ class StorageManager {
                     
                     // 验证每个标签的必要字段
                     for (const tag of importData.data.tags) {
+                        if (!tag || typeof tag !== 'object') {
+                            throw new Error('标签数据格式错误');
+                        }
                         if (!tag.id || !tag.name || !tag.color) {
-                            throw new Error('标签数据缺少必要字段');
+                            throw new Error(`标签数据缺少必要字段: ${tag.name || '未知标签'}`);
+                        }
+                        // 验证字段类型
+                        if (typeof tag.id !== 'string' || typeof tag.name !== 'string' || typeof tag.color !== 'string') {
+                            throw new Error(`标签数据字段类型错误: ${tag.name || '未知标签'}`);
                         }
                     }
                     
-                    localStorage.setItem(this.TAGS_KEY, JSON.stringify(importData.data.tags));
+                    // 处理数据冲突
+                    const existingTags = this.getTags();
+                    const mergedTags = this.mergeTags(existingTags, importData.data.tags);
+                    localStorage.setItem(this.TAGS_KEY, JSON.stringify(mergedTags));
                 }
                 
                 // 验证设置格式
@@ -296,8 +327,14 @@ class StorageManager {
                         throw new Error('设置数据必须是对象格式');
                     }
                     
-                    localStorage.setItem(this.SETTINGS_KEY, JSON.stringify(importData.data.settings));
+                    // 合并设置
+                    const existingSettings = this.getSettings();
+                    const mergedSettings = { ...existingSettings, ...importData.data.settings };
+                    localStorage.setItem(this.SETTINGS_KEY, JSON.stringify(mergedSettings));
                 }
+                
+                // 更新标签计数
+                this.updateTagCounts();
                 
                 return true;
             }
@@ -305,8 +342,35 @@ class StorageManager {
             throw new Error('无效的数据结构');
         } catch (error) {
             console.error('导入数据失败:', error);
+            if (error instanceof SyntaxError) {
+                throw new Error('JSON格式错误，请检查文件内容');
+            }
             throw error; // 重新抛出错误，让调用者知道具体的错误原因
         }
+    }
+
+    // 合并书签数据
+    mergeBookmarks(existing, imported) {
+        if (!existing || !Array.isArray(existing)) {
+            return imported;
+        }
+        
+        const existingIds = new Set(existing.map(bookmark => bookmark.id));
+        const newBookmarks = imported.filter(bookmark => !existingIds.has(bookmark.id));
+        
+        return [...existing, ...newBookmarks];
+    }
+
+    // 合并标签数据
+    mergeTags(existing, imported) {
+        if (!existing || !Array.isArray(existing)) {
+            return imported;
+        }
+        
+        const existingIds = new Set(existing.map(tag => tag.id));
+        const newTags = imported.filter(tag => !existingIds.has(tag.id));
+        
+        return [...existing, ...newTags];
     }
 
     // 清除所有数据

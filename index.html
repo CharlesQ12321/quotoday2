@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -94,25 +95,82 @@
                     opacity: 0;
                 }
             }
+            /* 按钮交互效果 */
+            .btn-hover {
+                transition: all 0.2s ease;
+            }
+            .btn-hover:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            .btn-hover:active {
+                transform: translateY(0);
+                box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            }
+            /* 卡片动画效果 */
+            .card-hover {
+                transition: all 0.3s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
+            /* 淡入动画 */
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-in forwards;
+            }
+            /* 弹性动画 */
+            @keyframes bounce {
+                0%, 100% {
+                    transform: translateY(0);
+                }
+                50% {
+                    transform: translateY(-10px);
+                }
+            }
+            .animate-bounce {
+                animation: bounce 0.5s ease-in-out;
+            }
+            /* 脉冲动画 */
+            @keyframes pulse {
+                0%, 100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.5;
+                }
+            }
+            .animate-pulse {
+                animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            /* 旋转动画 */
+            @keyframes spin {
+                from {
+                    transform: rotate(0deg);
+                }
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+            .animate-spin {
+                animation: spin 1s linear infinite;
+            }
         }
     </style>
     <link rel="stylesheet" href="styles/base.css">
     <link rel="stylesheet" href="styles/style1.css" id="current-style">
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center py-8">
-    <div class="phone-frame bg-white">
-        <!-- 状态栏 -->
-        <div class="status-bar flex items-center justify-between px-4">
-            <div class="text-xs font-medium">9:41</div>
-            <div class="flex items-center space-x-1">
-                <i class="fa fa-signal text-xs"></i>
-                <i class="fa fa-wifi text-xs"></i>
-                <i class="fa fa-battery-full text-xs"></i>
-            </div>
-        </div>
-        
-        <!-- 主内容区 -->
-        <div class="page hide-scrollbar">
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- 主内容区 -->
+    <div class="flex-1 overflow-y-auto hide-scrollbar" style="max-height: calc(100vh - 80px); padding-bottom: 20px;">
             <!-- 首页 -->
             <div id="home-page" class="page-content">
                 <div class="p-4">
@@ -148,7 +206,7 @@
                     <!-- 书签列表 -->
                     <div id="bookmark-list" class="space-y-4">
                         <!-- 书签项将通过JavaScript动态生成 -->
-                        <div class="bookmark-item p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <div class="bookmark-item p-4 bg-gray-50 rounded-lg shadow-sm card-hover">
                             <div class="flex justify-between items-start mb-2">
                                 <h3 class="font-semibold">人类简史</h3>
                                 <span class="text-xs text-gray-500">2026-01-31</span>
@@ -166,7 +224,7 @@
                             </div>
                         </div>
                         
-                        <div class="bookmark-item p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <div class="bookmark-item p-4 bg-gray-50 rounded-lg shadow-sm card-hover">
                             <div class="flex justify-between items-start mb-2">
                                 <h3 class="font-semibold">小王子</h3>
                                 <span class="text-xs text-gray-500">2026-01-30</span>
@@ -190,11 +248,8 @@
             <!-- 创建页 -->
             <div id="create-page" class="page-content hidden">
                 <div class="p-4">
-                    <div class="flex items-center mb-4">
-                        <button id="back-from-create" class="p-2 text-gray-500">
-                            <i class="fa fa-arrow-left"></i>
-                        </button>
-                        <h1 class="text-xl font-bold ml-2">创建书签</h1>
+                    <div class="flex items-center justify-center mb-4">
+                        <h1 class="text-xl font-bold">创建书签</h1>
                     </div>
                     
                     <!-- 图片上传区域 -->
@@ -231,12 +286,6 @@
                                 <i class="fa fa-rotate-right mr-1"></i> 旋转
                             </button>
                         </div>
-                    </div>
-                    
-                    <!-- 文字识别结果 -->
-                    <div id="ocr-result" class="mb-6 hidden">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">识别结果</label>
-                        <textarea id="recognized-text" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary" rows="4"></textarea>
                     </div>
                     
                     <!-- 书签信息表单 -->
@@ -299,20 +348,14 @@
                             </button>
                         </div>
                         
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">字体大小</label>
-                                <input type="range" id="font-size" min="12" max="24" value="16" class="w-full">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">行间距</label>
-                                <input type="range" id="line-height" min="1.2" max="2.0" step="0.1" value="1.5" class="w-full">
-                            </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">字体大小</label>
+                            <input type="range" id="font-size" min="12" max="24" value="16" class="w-full">
                         </div>
                     </div>
                     
                     <!-- 保存按钮 -->
-                    <button id="save-bookmark" class="w-full py-3 bg-primary text-white rounded-lg font-medium">
+                    <button id="save-bookmark" class="w-full py-3 bg-primary text-white rounded-lg font-medium btn-hover">
                         保存书签
                     </button>
                 </div>
@@ -388,7 +431,7 @@
                     <!-- 标签列表 -->
                     <div id="tag-list" class="space-y-3">
                         <!-- 标签项 -->
-                        <div class="tag-item flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="tag-item flex items-center justify-between p-3 bg-gray-50 rounded-lg card-hover">
                             <div class="flex items-center">
                                 <div class="w-3 h-3 rounded-full bg-blue-500 mr-3"></div>
                                 <span class="font-medium">读书笔记</span>
@@ -404,7 +447,7 @@
                             </div>
                         </div>
                         
-                        <div class="tag-item flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="tag-item flex items-center justify-between p-3 bg-gray-50 rounded-lg card-hover">
                             <div class="flex items-center">
                                 <div class="w-3 h-3 rounded-full bg-purple-500 mr-3"></div>
                                 <span class="font-medium">名言</span>
@@ -487,27 +530,26 @@
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- 底部导航栏 -->
-        <div class="nav-bar flex items-center justify-around">
-            <button class="nav-btn flex flex-col items-center justify-center active text-primary" data-page="home-page">
-                <i class="fa fa-home text-xl"></i>
-                <span class="text-xs mt-1">首页</span>
-            </button>
-            <button class="nav-btn flex flex-col items-center justify-center text-gray-500" data-page="create-page">
-                <i class="fa fa-plus-circle text-xl"></i>
-                <span class="text-xs mt-1">创建</span>
-            </button>
-            <button class="nav-btn flex flex-col items-center justify-center text-gray-500" data-page="tag-page">
-                <i class="fa fa-tags text-xl"></i>
-                <span class="text-xs mt-1">标签</span>
-            </button>
-            <button class="nav-btn flex flex-col items-center justify-center text-gray-500" data-page="settings-page">
-                <i class="fa fa-cog text-xl"></i>
-                <span class="text-xs mt-1">设置</span>
-            </button>
-        </div>
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="fixed bottom-0 left-0 right-0 flex items-center justify-around bg-white border-t border-gray-200 shadow-md z-100 h-20">
+        <button class="nav-btn flex flex-col items-center justify-center active text-primary" data-page="home-page">
+            <i class="fa fa-home text-xl"></i>
+            <span class="text-xs mt-1">首页</span>
+        </button>
+        <button class="nav-btn flex flex-col items-center justify-center text-gray-500" data-page="create-page">
+            <i class="fa fa-plus-circle text-xl"></i>
+            <span class="text-xs mt-1">创建</span>
+        </button>
+        <button class="nav-btn flex flex-col items-center justify-center text-gray-500" data-page="tag-page">
+            <i class="fa fa-tags text-xl"></i>
+            <span class="text-xs mt-1">标签</span>
+        </button>
+        <button class="nav-btn flex flex-col items-center justify-center text-gray-500" data-page="settings-page">
+            <i class="fa fa-cog text-xl"></i>
+            <span class="text-xs mt-1">设置</span>
+        </button>
     </div>
     
     <!-- 添加标签模态框 -->
@@ -552,12 +594,12 @@
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-1">标签颜色</label>
                 <div class="flex space-x-2">
-                    <button class="w-6 h-6 rounded-full bg-blue-500"></button>
-                    <button class="w-6 h-6 rounded-full bg-purple-500"></button>
-                    <button class="w-6 h-6 rounded-full bg-green-500"></button>
-                    <button class="w-6 h-6 rounded-full bg-yellow-500"></button>
-                    <button class="w-6 h-6 rounded-full bg-red-500"></button>
-                    <button class="w-6 h-6 rounded-full bg-indigo-500"></button>
+                    <button class="w-6 h-6 rounded-full bg-blue-500" style="background-color: #3B82F6;"></button>
+                    <button class="w-6 h-6 rounded-full bg-purple-500" style="background-color: #8B5CF6;"></button>
+                    <button class="w-6 h-6 rounded-full bg-green-500" style="background-color: #10B981;"></button>
+                    <button class="w-6 h-6 rounded-full bg-yellow-500" style="background-color: #F59E0B;"></button>
+                    <button class="w-6 h-6 rounded-full bg-red-500" style="background-color: #EF4444;"></button>
+                    <button class="w-6 h-6 rounded-full bg-indigo-500" style="background-color: #6366F1;"></button>
                 </div>
             </div>
             <div class="flex justify-end space-x-3">

@@ -22,6 +22,14 @@ class App {
         this.applySavedStyle();
     }
 
+    // 自动调整文本框高度
+    autoResizeTextarea(textarea) {
+        if (textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 300) + 'px'; // 限制最大高度为300px
+        }
+    }
+
     // 绑定事件
     bindEvents() {
         // 导航按钮
@@ -32,10 +40,7 @@ class App {
             });
         });
 
-        // 返回按钮
-        document.getElementById('back-from-create')?.addEventListener('click', () => {
-            this.navigateTo('home-page');
-        });
+        
 
         document.getElementById('back-from-detail')?.addEventListener('click', () => {
             this.navigateTo('home-page');
@@ -155,20 +160,24 @@ class App {
                     throw new Error('没有可识别的图片');
                 }
                 
-                // 使用AI OCR进行文字识别
-                const result = await aiOCR.recognizeText(previewImg.src);
+                // 实际裁剪图片
+                const croppedImageData = await imageEditor.cropImage();
+                if (!croppedImageData) {
+                    throw new Error('裁剪失败');
+                }
                 
-                // 隐藏图片预览，显示OCR结果区域
+                // 使用裁剪后的图片进行AI OCR文字识别
+                const result = await aiOCR.recognizeText(croppedImageData);
+                
+                // 隐藏图片预览
                 document.getElementById('image-preview').classList.add('hidden');
-                document.getElementById('ocr-result').classList.remove('hidden');
                 
                 if (result.success) {
-                    const recognizedText = document.getElementById('recognized-text');
-                    if (recognizedText) {
-                        recognizedText.value = result.text;
-                        // 自动填充到内容字段
-                        document.getElementById('bookmark-content').value = result.text;
-                    }
+                    // 直接将识别结果填入内容字段
+                    const contentTextarea = document.getElementById('bookmark-content');
+                    contentTextarea.value = result.text;
+                    // 自动调整文本框高度
+                    this.autoResizeTextarea(contentTextarea);
                     this.showSuccessToast('文字识别完成');
                 } else {
                     this.showErrorToast(`识别失败: ${result.error}`);
@@ -210,6 +219,16 @@ class App {
                 tagInput.value = '';
             }
         });
+
+        // 内容文本框自动调整高度
+        const contentTextarea = document.getElementById('bookmark-content');
+        if (contentTextarea) {
+            contentTextarea.addEventListener('input', () => {
+                this.autoResizeTextarea(contentTextarea);
+            });
+            // 初始调整
+            this.autoResizeTextarea(contentTextarea);
+        }
 
         document.getElementById('tag-input')?.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -348,7 +367,8 @@ class App {
         // 标签编辑按钮
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('fa-edit') && e.target.closest('.tag-item')) {
-                const tagId = e.target.closest('.tag-item').querySelector('.edit-tag')?.dataset.id;
+                const tagItem = e.target.closest('.tag-item');
+                const tagId = tagItem.querySelector('.edit-tag')?.dataset.id || tagItem.querySelector('.delete-tag')?.dataset.id;
                 if (tagId) {
                     tagManager.editTag(tagId);
                 }
@@ -413,7 +433,7 @@ class App {
         
         bookmarks.forEach(bookmark => {
             const bookmarkEl = document.createElement('div');
-            bookmarkEl.className = 'bookmark-item p-4 bg-gray-50 rounded-lg shadow-sm';
+            bookmarkEl.className = 'bookmark-item p-4 bg-gray-50 rounded-lg shadow-sm card-hover';
             
             // 格式化日期
             const date = new Date(bookmark.created_at);
@@ -446,11 +466,11 @@ class App {
             bookmarkList.appendChild(bookmarkEl);
         });
 
-        // 绑定查看详情事件
+        // 绑定操作菜单事件
         document.querySelectorAll('.view-detail').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const bookmarkId = e.currentTarget.dataset.id;
-                this.showBookmarkDetail(bookmarkId);
+                this.showBookmarkMenu(bookmarkId, e);
             });
         });
     }
@@ -466,7 +486,7 @@ class App {
         
         tags.forEach(tag => {
             const tagEl = document.createElement('div');
-            tagEl.className = 'tag-item flex items-center justify-between p-3 bg-gray-50 rounded-lg';
+            tagEl.className = 'tag-item flex items-center justify-between p-3 bg-gray-50 rounded-lg card-hover';
             
             tagEl.innerHTML = `
                 <div class="flex items-center">
@@ -491,18 +511,14 @@ class App {
         document.querySelectorAll('.edit-tag').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const tagId = e.currentTarget.dataset.id;
-                // 这里可以添加编辑标签的逻辑
+                tagManager.editTag(tagId);
             });
         });
 
         document.querySelectorAll('.delete-tag').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const tagId = e.currentTarget.dataset.id;
-                if (confirm('确定要删除这个标签吗？')) {
-                    storage.deleteTag(tagId);
-                    this.renderTags();
-                    this.renderBookmarks();
-                }
+                tagManager.deleteTag(tagId);
             });
         });
     }
@@ -549,77 +565,154 @@ class App {
         this.navigateTo('detail-page');
     }
 
+    // 显示书签操作菜单
+    showBookmarkMenu(id, e) {
+        // 先关闭已存在的菜单
+        this.closeBookmarkMenu();
+
+        // 创建菜单容器
+        const menuContainer = document.createElement('div');
+        menuContainer.className = 'fixed inset-0 z-40';
+        menuContainer.id = 'bookmark-menu-container';
+
+        // 创建菜单元素
+        const menu = document.createElement('div');
+        menu.className = 'absolute bg-white rounded-lg shadow-lg py-2 min-w-[120px] z-50 animate-fade-in';
+        menu.id = 'bookmark-menu';
+
+        // 添加菜单项
+        menu.innerHTML = `
+            <button class="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center menu-share" data-id="${id}">
+                <i class="fa fa-share-alt mr-2"></i>
+                <span>分享</span>
+            </button>
+            <button class="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center menu-edit" data-id="${id}">
+                <i class="fa fa-edit mr-2"></i>
+                <span>编辑</span>
+            </button>
+            <button class="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center menu-delete" data-id="${id}">
+                <i class="fa fa-trash mr-2"></i>
+                <span>删除</span>
+            </button>
+        `;
+
+        // 计算菜单位置
+        const rect = e.currentTarget.getBoundingClientRect();
+        menu.style.top = `${rect.bottom + window.scrollY + 5}px`;
+        menu.style.right = `${window.innerWidth - rect.right + window.scrollX}px`;
+
+        // 确保菜单在视口内
+        const menuWidth = 150;
+        const menuHeight = 120;
+        if (menu.getBoundingClientRect().right > window.innerWidth) {
+            menu.style.right = `${window.innerWidth - rect.left - menuWidth + window.scrollX}px`;
+        }
+        if (menu.getBoundingClientRect().bottom > window.innerHeight) {
+            menu.style.top = `${rect.top + window.scrollY - menuHeight - 5}px`;
+        }
+
+        // 添加到文档
+        menuContainer.appendChild(menu);
+        document.body.appendChild(menuContainer);
+
+        // 为菜单项绑定事件
+        menu.querySelector('.menu-share').addEventListener('click', (e) => {
+            const bookmarkId = e.currentTarget.dataset.id;
+            shareService.shareBookmark(bookmarkId);
+            this.closeBookmarkMenu();
+        });
+
+        menu.querySelector('.menu-edit').addEventListener('click', (e) => {
+            const bookmarkId = e.currentTarget.dataset.id;
+            bookmarkManager.editBookmark(bookmarkId);
+            this.closeBookmarkMenu();
+        });
+
+        menu.querySelector('.menu-delete').addEventListener('click', (e) => {
+            const bookmarkId = e.currentTarget.dataset.id;
+            bookmarkManager.deleteBookmark(bookmarkId);
+            this.closeBookmarkMenu();
+        });
+
+        // 点击外部关闭菜单
+        menuContainer.addEventListener('click', (e) => {
+            if (e.target === menuContainer) {
+                this.closeBookmarkMenu();
+            }
+        });
+    }
+
+    // 关闭书签操作菜单
+    closeBookmarkMenu() {
+        const existingMenu = document.getElementById('bookmark-menu-container');
+        if (existingMenu) {
+            existingMenu.remove();
+        }
+    }
+
     // 预览图片
-    previewImage(file) {
+    async previewImage(file) {
         try {
             // 显示加载状态
             this.showLoading();
             
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const previewImg = document.getElementById('preview-img');
-                const imagePreview = document.getElementById('image-preview');
-                const cropArea = document.getElementById('crop-area');
-                const rotationIndicator = document.getElementById('rotation-indicator');
-                
-                if (!previewImg || !imagePreview || !cropArea) {
-                    this.hideLoading();
-                    this.showErrorToast('图片预览组件缺失');
-                    return;
-                }
-                
-                // 重置旋转角度
-                previewImg.style.transform = 'rotate(0deg)';
-                if (rotationIndicator) {
-                    rotationIndicator.textContent = '0°';
-                }
-                
-                // 加载图片
-                previewImg.src = e.target.result;
-                
-                // 图片加载完成后显示预览
-                previewImg.onload = () => {
-                    // 隐藏加载状态
-                    this.hideLoading();
-                    
-                    // 显示预览区域
-                    imagePreview.classList.remove('hidden');
-                    
-                    // 设置裁剪区域默认大小
-                    setTimeout(() => {
-                        const imgRect = previewImg.getBoundingClientRect();
-                        
-                        // 计算裁剪区域大小（占图片的80%宽度，60%高度）
-                        const cropWidth = imgRect.width * 0.8;
-                        const cropHeight = imgRect.height * 0.6;
-                        const cropLeft = imgRect.width * 0.1;
-                        const cropTop = imgRect.height * 0.2;
-                        
-                        // 设置裁剪区域样式
-                        cropArea.style.width = `${cropWidth}px`;
-                        cropArea.style.height = `${cropHeight}px`;
-                        cropArea.style.left = `${cropLeft}px`;
-                        cropArea.style.top = `${cropTop}px`;
-                        
-                        // 确保裁剪区域可见
-                        cropArea.classList.remove('hidden');
-                    }, 100);
-                };
-                
-                // 图片加载失败
-                previewImg.onerror = () => {
-                    this.hideLoading();
-                    this.showErrorToast('图片加载失败');
-                };
-            };
+            // 压缩图片
+            const compressedImageData = await imageEditor.compressUploadedImage(file);
             
-            // 读取文件失败
-            reader.onerror = () => {
+            const previewImg = document.getElementById('preview-img');
+            const imagePreview = document.getElementById('image-preview');
+            const cropArea = document.getElementById('crop-area');
+            const rotationIndicator = document.getElementById('rotation-indicator');
+            
+            if (!previewImg || !imagePreview || !cropArea) {
                 this.hideLoading();
-                this.showErrorToast('文件读取失败');
+                this.showErrorToast('图片预览组件缺失');
+                return;
+            }
+            
+            // 重置旋转角度
+            previewImg.style.transform = 'rotate(0deg)';
+            if (rotationIndicator) {
+                rotationIndicator.textContent = '0°';
+            }
+            
+            // 加载压缩后的图片
+            previewImg.src = compressedImageData;
+            
+            // 图片加载完成后显示预览
+            previewImg.onload = () => {
+                // 隐藏加载状态
+                this.hideLoading();
+                
+                // 显示预览区域
+                imagePreview.classList.remove('hidden');
+                
+                // 设置裁剪区域默认大小为整张图片
+                setTimeout(() => {
+                    const imgRect = previewImg.getBoundingClientRect();
+                    
+                    // 设置裁剪区域为整张图片大小
+                    const cropWidth = imgRect.width;
+                    const cropHeight = imgRect.height;
+                    const cropLeft = 0;
+                    const cropTop = 0;
+                    
+                    // 设置裁剪区域样式
+                    cropArea.style.width = `${cropWidth}px`;
+                    cropArea.style.height = `${cropHeight}px`;
+                    cropArea.style.left = `${cropLeft}px`;
+                    cropArea.style.top = `${cropTop}px`;
+                    
+                    // 确保裁剪区域可见
+                    cropArea.classList.remove('hidden');
+                }, 100);
             };
             
-            reader.readAsDataURL(file);
+            // 图片加载失败
+            previewImg.onerror = () => {
+                this.hideLoading();
+                this.showErrorToast('图片加载失败');
+            };
         } catch (error) {
             console.error('预览图片错误:', error);
             this.hideLoading();
@@ -691,9 +784,8 @@ class App {
                 }
             });
             
-            // 获取字体大小和行间距
+            // 获取字体大小
             const fontSize = document.getElementById('font-size').value;
-            const lineHeight = document.getElementById('line-height').value;
             
             // 创建书签对象
             const bookmark = {
@@ -704,8 +796,7 @@ class App {
                 note,
                 tags,
                 template,
-                font_size: parseInt(fontSize),
-                line_height: parseFloat(lineHeight)
+                font_size: parseInt(fontSize)
             };
             
             // 保存书签
@@ -751,8 +842,6 @@ class App {
         document.getElementById('tag-input').value = '';
         document.getElementById('image-input').value = '';
         document.getElementById('image-preview').classList.add('hidden');
-        document.getElementById('ocr-result').classList.add('hidden');
-        document.getElementById('recognized-text').value = '';
     }
 
     // 切换样式
@@ -765,6 +854,54 @@ class App {
         
         // 显示成功提示
         this.showSuccessToast('样式已更新');
+    }
+
+    // 编辑标签
+    editTag(id) {
+        const tag = storage.getTag(id);
+        if (!tag) return;
+
+        // 填充编辑模态框
+        document.getElementById('edit-tag-id').value = tag.id;
+        document.getElementById('edit-tag-name').value = tag.name;
+
+        // 选择颜色
+        document.querySelectorAll('#edit-tag-modal .w-6.h-6.rounded-full').forEach(colorBtn => {
+            colorBtn.classList.remove('border-2', 'border-white', 'shadow-sm');
+            if (colorBtn.style.backgroundColor === tag.color || colorBtn.style.backgroundColor === '' && tag.color === '#3B82F6') {
+                colorBtn.classList.add('border-2', 'border-white', 'shadow-sm');
+            }
+        });
+
+        // 显示编辑模态框
+        document.getElementById('edit-tag-modal').classList.remove('hidden');
+
+        // 绑定确认按钮事件
+        document.getElementById('confirm-edit-tag').onclick = () => {
+            const tagName = document.getElementById('edit-tag-name').value.trim();
+            if (!tagName) {
+                this.showErrorToast('请输入标签名称');
+                return;
+            }
+
+            const selectedColor = document.querySelector('#edit-tag-modal .w-6.h-6.rounded-full.border-2')?.style.backgroundColor || '#3B82F6';
+            const updatedTag = {
+                id: id,
+                name: tagName,
+                color: selectedColor
+            };
+
+            storage.saveTag(updatedTag);
+            this.renderTags();
+            this.renderBookmarks();
+            document.getElementById('edit-tag-modal').classList.add('hidden');
+            this.showSuccessToast('标签更新成功');
+        };
+
+        // 绑定取消按钮事件
+        document.getElementById('cancel-edit-tag').onclick = () => {
+            document.getElementById('edit-tag-modal').classList.add('hidden');
+        };
     }
 
     // 应用保存的样式
