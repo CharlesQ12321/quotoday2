@@ -53,25 +53,21 @@ class StorageManager {
                 {
                     id: '1',
                     name: '读书笔记',
-                    color: '#3B82F6',
                     count: 1
                 },
                 {
                     id: '2',
                     name: '名言',
-                    color: '#8B5CF6',
                     count: 1
                 },
                 {
                     id: '3',
                     name: '感悟',
-                    color: '#10B981',
                     count: 0
                 },
                 {
                     id: '4',
                     name: '学习',
-                    color: '#F59E0B',
                     count: 0
                 }
             ];
@@ -302,18 +298,18 @@ class StorageManager {
                     }
                     
                     // 验证每个标签的必要字段
-                    for (const tag of importData.data.tags) {
-                        if (!tag || typeof tag !== 'object') {
-                            throw new Error('标签数据格式错误');
+                        for (const tag of importData.data.tags) {
+                            if (!tag || typeof tag !== 'object') {
+                                throw new Error('标签数据格式错误');
+                            }
+                            if (!tag.id || !tag.name) {
+                                throw new Error(`标签数据缺少必要字段: ${tag.name || '未知标签'}`);
+                            }
+                            // 验证字段类型
+                            if (typeof tag.id !== 'string' || typeof tag.name !== 'string') {
+                                throw new Error(`标签数据字段类型错误: ${tag.name || '未知标签'}`);
+                            }
                         }
-                        if (!tag.id || !tag.name || !tag.color) {
-                            throw new Error(`标签数据缺少必要字段: ${tag.name || '未知标签'}`);
-                        }
-                        // 验证字段类型
-                        if (typeof tag.id !== 'string' || typeof tag.name !== 'string' || typeof tag.color !== 'string') {
-                            throw new Error(`标签数据字段类型错误: ${tag.name || '未知标签'}`);
-                        }
-                    }
                     
                     // 处理数据冲突
                     const existingTags = this.getTags();

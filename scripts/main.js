@@ -685,12 +685,11 @@ class App {
         
         tags.forEach(tag => {
             const tagEl = document.createElement('div');
-            tagEl.className = 'tag-item flex items-center justify-between p-3 bg-gray-50 rounded-lg card-hover';
+            tagEl.className = 'tag-item flex items-center justify-between p-3 bg-gray-50 rounded-lg card-hover cursor-pointer';
             
             tagEl.innerHTML = `
                 <div class="flex items-center">
-                    <div class="w-3 h-3 rounded-full" style="background-color: ${tag.color};"></div>
-                    <span class="font-medium ml-3">${tag.name}</span>
+                    <span class="font-medium">${tag.name}</span>
                 </div>
                 <div class="flex items-center">
                     <span class="text-xs text-gray-500 mr-4">使用 ${tag.count} 次</span>
@@ -702,6 +701,23 @@ class App {
                     </button>
                 </div>
             `;
+            
+            // 添加点击事件
+            tagEl.addEventListener('click', (e) => {
+                // 避免点击按钮时触发
+                if (!e.target.closest('button')) {
+                    // 跳转到首页
+                    this.navigateTo('home-page');
+                    
+                    // 选中对应的标签并筛选
+                    const filterTagSelect = document.getElementById('filter-tag');
+                    if (filterTagSelect) {
+                        filterTagSelect.value = tag.id;
+                        // 触发筛选
+                        this.filterBookmarks();
+                    }
+                }
+            });
             
             tagList.appendChild(tagEl);
         });
@@ -752,9 +768,7 @@ class App {
             const tag = storage.getTag(tagId);
             if (tag) {
                 const tagEl = document.createElement('span');
-                tagEl.className = 'text-xs px-3 py-1 rounded-full';
-                tagEl.style.backgroundColor = `${tag.color}20`;
-                tagEl.style.color = tag.color;
+                tagEl.className = 'text-xs px-3 py-1 rounded-full bg-gray-200 text-gray-800';
                 tagEl.textContent = tag.name;
                 detailTags.appendChild(tagEl);
             }
@@ -984,15 +998,14 @@ class App {
             document.querySelectorAll('#tag-input-area .tag').forEach(tagEl => {
                 const tagName = tagEl.textContent.trim().replace('×', '').trim();
                 // 查找或创建标签
-                let existingTag = storage.getTags().find(t => t.name === tagName);
-                if (!existingTag) {
-                    // 创建新标签
-                    existingTag = {
-                        name: tagName,
-                        color: '#3B82F6'
-                    };
-                    storage.saveTag(existingTag);
-                }
+            let existingTag = storage.getTags().find(t => t.name === tagName);
+            if (!existingTag) {
+                // 创建新标签
+                existingTag = {
+                    name: tagName
+                };
+                storage.saveTag(existingTag);
+            }
                 tags.push(existingTag.id);
             });
             
@@ -1081,14 +1094,6 @@ class App {
         document.getElementById('edit-tag-id').value = tag.id;
         document.getElementById('edit-tag-name').value = tag.name;
 
-        // 选择颜色
-        document.querySelectorAll('#edit-tag-modal .w-6.h-6.rounded-full').forEach(colorBtn => {
-            colorBtn.classList.remove('border-2', 'border-white', 'shadow-sm');
-            if (colorBtn.style.backgroundColor === tag.color || colorBtn.style.backgroundColor === '' && tag.color === '#3B82F6') {
-                colorBtn.classList.add('border-2', 'border-white', 'shadow-sm');
-            }
-        });
-
         // 显示编辑模态框
         document.getElementById('edit-tag-modal').classList.remove('hidden');
 
@@ -1100,11 +1105,9 @@ class App {
                 return;
             }
 
-            const selectedColor = document.querySelector('#edit-tag-modal .w-6.h-6.rounded-full.border-2')?.style.backgroundColor || '#3B82F6';
             const updatedTag = {
                 id: id,
-                name: tagName,
-                color: selectedColor
+                name: tagName
             };
 
             storage.saveTag(updatedTag);

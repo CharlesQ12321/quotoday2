@@ -36,14 +36,6 @@ class TagManager {
         document.getElementById('cancel-edit-tag')?.addEventListener('click', () => {
             this.closeEditTagModal();
         });
-
-        // 颜色选择
-        document.querySelectorAll('.w-6.h-6.rounded-full')?.forEach(colorBtn => {
-            colorBtn.addEventListener('click', (e) => {
-                document.querySelectorAll('.w-6.h-6.rounded-full').forEach(b => b.classList.remove('border-2', 'border-white', 'shadow-sm'));
-                e.currentTarget.classList.add('border-2', 'border-white', 'shadow-sm');
-            });
-        });
     }
 
     // 打开添加标签模态框
@@ -52,10 +44,6 @@ class TagManager {
         if (modal) {
             modal.classList.remove('hidden');
             document.getElementById('new-tag-name').value = '';
-            
-            // 重置颜色选择
-            document.querySelectorAll('.w-6.h-6.rounded-full').forEach(b => b.classList.remove('border-2', 'border-white', 'shadow-sm'));
-            document.querySelector('.w-6.h-6.rounded-full:first-child')?.classList.add('border-2', 'border-white', 'shadow-sm');
         }
     }
 
@@ -80,17 +68,6 @@ class TagManager {
             modal.classList.remove('hidden');
             document.getElementById('edit-tag-id').value = id;
             document.getElementById('edit-tag-name').value = tag.name;
-            
-            // 重置颜色选择
-            document.querySelectorAll('#edit-tag-modal .w-6.h-6.rounded-full').forEach(b => b.classList.remove('border-2', 'border-white', 'shadow-sm'));
-            
-            // 选择当前颜色
-            document.querySelectorAll('#edit-tag-modal .w-6.h-6.rounded-full').forEach(b => {
-                const btnColor = window.getComputedStyle(b).backgroundColor;
-                if (btnColor === tag.color) {
-                    b.classList.add('border-2', 'border-white', 'shadow-sm');
-                }
-            });
         }
     }
 
@@ -117,13 +94,9 @@ class TagManager {
             return;
         }
 
-        // 获取选中的颜色
-        const selectedColor = this.getSelectedColor();
-
         // 创建新标签
         const newTag = {
-            name: tagName,
-            color: selectedColor
+            name: tagName
         };
 
         // 保存标签
@@ -185,19 +158,16 @@ class TagManager {
             return;
         }
 
-        // 获取选中的颜色
-        const selectedColor = this.getSelectedColor('edit-tag-modal');
-
         // 更新标签
         tag.name = tagName;
-        tag.color = selectedColor;
         storage.saveTag(tag);
 
         // 更新标签计数
         storage.updateTagCounts();
 
-        // 重新渲染标签列表
+        // 重新渲染标签列表和书签列表
         app.renderTags();
+        app.renderBookmarks();
 
         // 关闭模态框
         this.closeEditTagModal();
@@ -270,7 +240,6 @@ class TagManager {
         return tags.map(tag => ({
             id: tag.id,
             name: tag.name,
-            color: tag.color,
             count: tag.count,
             percentage: 0
         }));
@@ -306,8 +275,7 @@ class TagManager {
             
             tagEl.innerHTML = `
                 <div class="flex items-center">
-                    <div class="w-3 h-3 rounded-full" style="background-color: ${tag.color};"></div>
-                    <span class="font-medium ml-3">${tag.name}</span>
+                    <span class="font-medium">${tag.name}</span>
                 </div>
                 <div class="flex items-center">
                     <span class="text-xs text-gray-500 mr-4">使用 ${tag.count} 次</span>
