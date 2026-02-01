@@ -88,16 +88,12 @@ class ShareService {
                 url: window.location.origin
             }).catch(err => {
                 console.error('分享失败:', err);
-                // 回退到下载图片
-                this.downloadImage(imageData, `bookmark-${bookmark.id}.png`).then(() => {
-                    app.showSuccessToast('图片已下载，请手动分享');
-                });
+                // 回退到分享选项
+                this.showShareOptions(imageData, bookmark);
             });
         } else {
-            // 回退到下载图片
-            this.downloadImage(imageData, `bookmark-${bookmark.id}.png`).then(() => {
-                app.showSuccessToast('图片已下载，请手动分享');
-            });
+            // 回退到分享选项
+            this.showShareOptions(imageData, bookmark);
         }
     }
 
@@ -118,10 +114,14 @@ class ShareService {
                     <button class="w-full flex items-center justify-between p-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
                         <span class="flex items-center">
                             <i class="fa fa-download text-gray-600 mr-3"></i>
-                            <span>下载图片</span>
+                            <span>保存图片到相册</span>
                         </span>
                         <i class="fa fa-arrow-right text-gray-400"></i>
                     </button>
+                    <div class="p-3 bg-blue-50 rounded-lg text-sm text-blue-700">
+                        <i class="fa fa-info-circle mr-2"></i>
+                        <span>保存图片后，可在微信朋友圈中分享</span>
+                    </div>
                     <button class="w-full flex items-center justify-between p-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
                         <span class="flex items-center">
                             <i class="fa fa-copy text-gray-600 mr-3"></i>
@@ -133,27 +133,6 @@ class ShareService {
                         <span class="flex items-center">
                             <i class="fa fa-clipboard text-gray-600 mr-3"></i>
                             <span>复制内容</span>
-                        </span>
-                        <i class="fa fa-arrow-right text-gray-400"></i>
-                    </button>
-                    <button class="w-full flex items-center justify-between p-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-                        <span class="flex items-center">
-                            <i class="fa fa-file-pdf-o text-red-600 mr-3"></i>
-                            <span>导出为PDF</span>
-                        </span>
-                        <i class="fa fa-arrow-right text-gray-400"></i>
-                    </button>
-                    <button class="w-full flex items-center justify-between p-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-                        <span class="flex items-center">
-                            <i class="fa fa-file-text-o text-blue-600 mr-3"></i>
-                            <span>导出为文本</span>
-                        </span>
-                        <i class="fa fa-arrow-right text-gray-400"></i>
-                    </button>
-                    <button class="w-full flex items-center justify-between p-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-                        <span class="flex items-center">
-                            <i class="fa fa-file-code-o text-green-600 mr-3"></i>
-                            <span>导出为JSON</span>
                         </span>
                         <i class="fa fa-arrow-right text-gray-400"></i>
                     </button>
@@ -175,7 +154,7 @@ class ShareService {
         shareOptions.querySelectorAll('button')[0].addEventListener('click', () => {
             this.downloadImage(imageData, `bookmark-${bookmark.id}.png`);
             document.body.removeChild(shareOptions);
-            app.showSuccessToast('图片已下载');
+            app.showSuccessToast('图片已保存到相册，请在微信朋友圈中分享');
         });
 
         // 复制链接
@@ -190,24 +169,6 @@ class ShareService {
             this.copyContent(bookmark);
             document.body.removeChild(shareOptions);
             app.showSuccessToast('内容已复制');
-        });
-
-        // 导出为PDF
-        shareOptions.querySelectorAll('button')[3].addEventListener('click', () => {
-            this.exportToPDF(bookmark);
-            document.body.removeChild(shareOptions);
-        });
-
-        // 导出为文本
-        shareOptions.querySelectorAll('button')[4].addEventListener('click', () => {
-            this.exportToText(bookmark);
-            document.body.removeChild(shareOptions);
-        });
-
-        // 导出为JSON
-        shareOptions.querySelectorAll('button')[5].addEventListener('click', () => {
-            this.exportToJSON(bookmark);
-            document.body.removeChild(shareOptions);
         });
     }
 

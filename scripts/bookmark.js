@@ -12,11 +12,6 @@ class BookmarkManager {
 
     // 绑定事件
     bindEvents() {
-        // 保存书签按钮
-        document.getElementById('save-bookmark')?.addEventListener('click', () => {
-            this.saveBookmark();
-        });
-
         // 从识别结果填充内容
         document.getElementById('ocr-result')?.addEventListener('DOMNodeInserted', (e) => {
             if (e.target.id === 'recognized-text') {
@@ -39,8 +34,26 @@ class BookmarkManager {
             const content = document.getElementById('bookmark-content').value.trim();
             const note = document.getElementById('bookmark-note').value.trim();
             
-            if (!title || !content) {
-                app.showErrorToast('请填写书名和内容');
+            // 验证必填项
+            if (!title) {
+                app.showErrorToast('请填写书名');
+                return;
+            }
+            
+            if (!author) {
+                app.showErrorToast('请填写作者');
+                return;
+            }
+            
+            if (!content) {
+                app.showErrorToast('请填写内容');
+                return;
+            }
+            
+            // 验证标签
+            const tagCount = document.querySelectorAll('#tag-input-area .tag').length;
+            if (tagCount === 0) {
+                app.showErrorToast('请至少添加一个标签');
                 return;
             }
             
@@ -71,9 +84,12 @@ class BookmarkManager {
                 }
             });
             
-            // 获取字体大小和行间距
+            // 获取字体大小
             const fontSize = document.getElementById('font-size').value;
-            const lineHeight = document.getElementById('line-height').value;
+            
+            // 只有当line-height元素存在时才获取
+            const lineHeightElement = document.getElementById('line-height');
+            const lineHeight = lineHeightElement ? lineHeightElement.value : '1.5';
             
             // 创建书签对象
             const bookmark = {
@@ -267,12 +283,34 @@ class BookmarkManager {
             }
         });
         
-        // 设置字体大小和行间距
+        // 设置字体大小
         document.getElementById('font-size').value = bookmark.font_size;
-        document.getElementById('line-height').value = bookmark.line_height;
+        
+        // 只有当line-height元素存在时才设置
+        const lineHeightElement = document.getElementById('line-height');
+        if (lineHeightElement) {
+            lineHeightElement.value = bookmark.line_height;
+        }
         
         // 导航到创建页
         app.navigateTo('create-page');
+        
+        // 延迟执行，确保DOM元素已完全渲染
+        setTimeout(() => {
+            // 自动调整内容文本框高度
+            const contentTextarea = document.getElementById('bookmark-content');
+            if (contentTextarea) {
+                // 先确保值已设置
+                if (contentTextarea.value) {
+                    // 强制刷新scrollHeight
+                    contentTextarea.style.height = 'auto';
+                    // 等待一下让浏览器计算scrollHeight
+                    setTimeout(() => {
+                        contentTextarea.style.height = Math.min(contentTextarea.scrollHeight, 300) + 'px'; // 限制最大高度为300px
+                    }, 50);
+                }
+            }
+        }, 300);
     }
 
     // 删除书签
@@ -346,27 +384,82 @@ class BookmarkManager {
                     <h3 class="font-semibold">${highlightText(bookmark.title, query)}</h3>
                     <span class="text-xs text-gray-500">${formattedDate}</span>
                 </div>
-                <p class="text-sm text-gray-600 mb-3 line-clamp-2">
+                <p class="text-sm text-gray-600 mb-3 bookmark-content transition-all duration-300 overflow-hidden">
                     ${highlightText(bookmark.content, query)}
                 </p>
-                <div class="flex justify-between items-center">
+                <div class="flex justify-between items-center mb-3">
                     <div class="flex space-x-1">
                         ${tagNames.map(name => `<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full">${highlightText(name, query)}</span>`).join('')}
                     </div>
-                    <button class="text-gray-400 view-detail" data-id="${bookmark.id}">
-                        <i class="fa fa-ellipsis-v"></i>
+                </div>
+                <div class="bookmark-actions hidden grid grid-cols-3 gap-2 mb-2">
+                    <button class="action-btn share-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                        <i class="fa fa-share-alt text-gray-500 mb-1"></i>
+                        <span class="text-xs text-gray-500">分享</span>
+                    </button>
+                    <button class="action-btn edit-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                        <i class="fa fa-edit text-gray-500 mb-1"></i>
+                        <span class="text-xs text-gray-500">编辑</span>
+                    </button>
+                    <button class="action-btn delete-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                        <i class="fa fa-trash text-gray-500 mb-1"></i>
+                        <span class="text-xs text-gray-500">删除</span>
                     </button>
                 </div>
             `;
             
             bookmarkList.appendChild(bookmarkEl);
+
+            // 为书签项添加点击展开/收起功能
+            bookmarkEl.addEventListener('click', (e) => {
+                // 避免点击操作按钮时触发
+                if (!e.target.closest('.action-btn')) {
+                    const contentEl = bookmarkEl.querySelector('.bookmark-content');
+                    const actionsEl = bookmarkEl.querySelector('.bookmark-actions');
+                    
+                    // 先关闭所有其他书签的展开状态
+                    document.querySelectorAll('.bookmark-item').forEach(item => {
+                        if (item !== bookmarkEl) {
+                            const itemContent = item.querySelector('.bookmark-content');
+                            const itemActions = item.querySelector('.bookmark-actions');
+                            if (itemContent) itemContent.classList.remove('expanded');
+                            if (itemActions) itemActions.classList.add('hidden');
+                        }
+                    });
+                    
+                    // 切换当前书签的展开状态
+                    if (contentEl) {
+                        contentEl.classList.toggle('expanded');
+                    }
+                    if (actionsEl) {
+                        actionsEl.classList.toggle('hidden');
+                    }
+                }
+            });
         });
 
-        // 绑定查看详情事件
-        document.querySelectorAll('.view-detail').forEach(btn => {
+        // 绑定操作按钮事件
+        document.querySelectorAll('.share-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 const bookmarkId = e.currentTarget.dataset.id;
-                app.showBookmarkDetail(bookmarkId);
+                shareService.shareBookmark(bookmarkId);
+            });
+        });
+
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const bookmarkId = e.currentTarget.dataset.id;
+                bookmarkManager.editBookmark(bookmarkId);
+            });
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const bookmarkId = e.currentTarget.dataset.id;
+                bookmarkManager.deleteBookmark(bookmarkId);
             });
         });
     }
@@ -414,27 +507,82 @@ class BookmarkManager {
                     <h3 class="font-semibold">${bookmark.title}</h3>
                     <span class="text-xs text-gray-500">${formattedDate}</span>
                 </div>
-                <p class="text-sm text-gray-600 mb-3 line-clamp-2">
+                <p class="text-sm text-gray-600 mb-3 bookmark-content transition-all duration-300 overflow-hidden">
                     ${bookmark.content}
                 </p>
-                <div class="flex justify-between items-center">
+                <div class="flex justify-between items-center mb-3">
                     <div class="flex space-x-1">
                         ${tagNames.map(name => `<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full">${name}</span>`).join('')}
                     </div>
-                    <button class="text-gray-400 view-detail" data-id="${bookmark.id}">
-                        <i class="fa fa-ellipsis-v"></i>
+                </div>
+                <div class="bookmark-actions hidden grid grid-cols-3 gap-2 mb-2">
+                    <button class="action-btn share-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                        <i class="fa fa-share-alt text-gray-500 mb-1"></i>
+                        <span class="text-xs text-gray-500">分享</span>
+                    </button>
+                    <button class="action-btn edit-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                        <i class="fa fa-edit text-gray-500 mb-1"></i>
+                        <span class="text-xs text-gray-500">编辑</span>
+                    </button>
+                    <button class="action-btn delete-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                        <i class="fa fa-trash text-gray-500 mb-1"></i>
+                        <span class="text-xs text-gray-500">删除</span>
                     </button>
                 </div>
             `;
             
             bookmarkList.appendChild(bookmarkEl);
+
+            // 为书签项添加点击展开/收起功能
+            bookmarkEl.addEventListener('click', (e) => {
+                // 避免点击操作按钮时触发
+                if (!e.target.closest('.action-btn')) {
+                    const contentEl = bookmarkEl.querySelector('.bookmark-content');
+                    const actionsEl = bookmarkEl.querySelector('.bookmark-actions');
+                    
+                    // 先关闭所有其他书签的展开状态
+                    document.querySelectorAll('.bookmark-item').forEach(item => {
+                        if (item !== bookmarkEl) {
+                            const itemContent = item.querySelector('.bookmark-content');
+                            const itemActions = item.querySelector('.bookmark-actions');
+                            if (itemContent) itemContent.classList.remove('expanded');
+                            if (itemActions) itemActions.classList.add('hidden');
+                        }
+                    });
+                    
+                    // 切换当前书签的展开状态
+                    if (contentEl) {
+                        contentEl.classList.toggle('expanded');
+                    }
+                    if (actionsEl) {
+                        actionsEl.classList.toggle('hidden');
+                    }
+                }
+            });
         });
 
-        // 绑定查看详情事件
-        document.querySelectorAll('.view-detail').forEach(btn => {
+        // 绑定操作按钮事件
+        document.querySelectorAll('.share-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 const bookmarkId = e.currentTarget.dataset.id;
-                app.showBookmarkDetail(bookmarkId);
+                shareService.shareBookmark(bookmarkId);
+            });
+        });
+
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const bookmarkId = e.currentTarget.dataset.id;
+                bookmarkManager.editBookmark(bookmarkId);
+            });
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const bookmarkId = e.currentTarget.dataset.id;
+                bookmarkManager.deleteBookmark(bookmarkId);
             });
         });
     }

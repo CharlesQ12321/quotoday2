@@ -374,6 +374,20 @@ class App {
                 }
             }
         });
+
+        // 点击空白区域收起已打开的书签
+        document.addEventListener('click', (e) => {
+            // 检查点击是否在书签项或操作按钮之外
+            if (!e.target.closest('.bookmark-item') && !e.target.closest('.action-btn')) {
+                // 收起所有书签的展开状态
+                document.querySelectorAll('.bookmark-item').forEach(item => {
+                    const itemContent = item.querySelector('.bookmark-content');
+                    const itemActions = item.querySelector('.bookmark-actions');
+                    if (itemContent) itemContent.classList.remove('expanded');
+                    if (itemActions) itemActions.classList.add('hidden');
+                });
+            }
+        });
     }
 
     // 页面导航
@@ -450,27 +464,82 @@ class App {
                     <h3 class="font-semibold">${bookmark.title}</h3>
                     <span class="text-xs text-gray-500">${formattedDate}</span>
                 </div>
-                <p class="text-sm text-gray-600 mb-3 line-clamp-2">
+                <p class="text-sm text-gray-600 mb-3 bookmark-content transition-all duration-300 overflow-hidden">
                     ${bookmark.content}
                 </p>
-                <div class="flex justify-between items-center">
+                <div class="flex justify-between items-center mb-3">
                     <div class="flex space-x-1">
                         ${tagNames.map(name => `<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full">${name}</span>`).join('')}
                     </div>
-                    <button class="text-gray-400 view-detail" data-id="${bookmark.id}">
-                        <i class="fa fa-ellipsis-v"></i>
+                </div>
+                <div class="bookmark-actions hidden grid grid-cols-3 gap-2 mb-2">
+                    <button class="action-btn share-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                        <i class="fa fa-share-alt text-gray-500 mb-1"></i>
+                        <span class="text-xs text-gray-500">分享</span>
+                    </button>
+                    <button class="action-btn edit-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                        <i class="fa fa-edit text-gray-500 mb-1"></i>
+                        <span class="text-xs text-gray-500">编辑</span>
+                    </button>
+                    <button class="action-btn delete-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                        <i class="fa fa-trash text-gray-500 mb-1"></i>
+                        <span class="text-xs text-gray-500">删除</span>
                     </button>
                 </div>
             `;
             
             bookmarkList.appendChild(bookmarkEl);
+
+            // 为书签项添加点击展开/收起功能
+            bookmarkEl.addEventListener('click', (e) => {
+                // 避免点击操作按钮时触发
+                if (!e.target.closest('.action-btn')) {
+                    const contentEl = bookmarkEl.querySelector('.bookmark-content');
+                    const actionsEl = bookmarkEl.querySelector('.bookmark-actions');
+                    
+                    // 先关闭所有其他书签的展开状态
+                    document.querySelectorAll('.bookmark-item').forEach(item => {
+                        if (item !== bookmarkEl) {
+                            const itemContent = item.querySelector('.bookmark-content');
+                            const itemActions = item.querySelector('.bookmark-actions');
+                            if (itemContent) itemContent.classList.remove('expanded');
+                            if (itemActions) itemActions.classList.add('hidden');
+                        }
+                    });
+                    
+                    // 切换当前书签的展开状态
+                    if (contentEl) {
+                        contentEl.classList.toggle('expanded');
+                    }
+                    if (actionsEl) {
+                        actionsEl.classList.toggle('hidden');
+                    }
+                }
+            });
         });
 
-        // 绑定操作菜单事件
-        document.querySelectorAll('.view-detail').forEach(btn => {
+        // 绑定操作按钮事件
+        document.querySelectorAll('.share-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 const bookmarkId = e.currentTarget.dataset.id;
-                this.showBookmarkMenu(bookmarkId, e);
+                shareService.shareBookmark(bookmarkId);
+            });
+        });
+
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const bookmarkId = e.currentTarget.dataset.id;
+                bookmarkManager.editBookmark(bookmarkId);
+            });
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const bookmarkId = e.currentTarget.dataset.id;
+                bookmarkManager.deleteBookmark(bookmarkId);
             });
         });
     }
@@ -751,8 +820,26 @@ class App {
             const content = document.getElementById('bookmark-content').value.trim();
             const note = document.getElementById('bookmark-note').value.trim();
             
-            if (!title || !content) {
-                this.showErrorToast('请填写书名和内容');
+            // 验证必填项
+            if (!title) {
+                this.showErrorToast('请填写书名');
+                return;
+            }
+            
+            if (!author) {
+                this.showErrorToast('请填写作者');
+                return;
+            }
+            
+            if (!content) {
+                this.showErrorToast('请填写内容');
+                return;
+            }
+            
+            // 验证标签
+            const tagCount = document.querySelectorAll('#tag-input-area .tag').length;
+            if (tagCount === 0) {
+                this.showErrorToast('请至少添加一个标签');
                 return;
             }
             
@@ -800,11 +887,7 @@ class App {
             };
             
             // 保存书签
-            const saved = storage.saveBookmark(bookmark);
-            
-            if (!saved) {
-                throw new Error('保存书签失败');
-            }
+            storage.saveBookmark(bookmark);
             
             // 更新标签计数
             storage.updateTagCounts();
