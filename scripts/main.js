@@ -197,7 +197,7 @@ class App {
 
         // 保存书签
         document.getElementById('save-bookmark')?.addEventListener('click', () => {
-            this.saveBookmark();
+            bookmarkManager.saveBookmark();
         });
 
         // 模板选择
@@ -462,15 +462,16 @@ class App {
             bookmarkEl.innerHTML = `
                 <div class="flex justify-between items-start mb-2">
                     <h3 class="font-semibold">${bookmark.title}</h3>
-                    <span class="text-xs text-gray-500">${formattedDate}</span>
+                    <span class="font-semibold text-sm">${bookmark.author}</span>
                 </div>
                 <p class="text-sm text-gray-600 mb-3 bookmark-content transition-all duration-300 overflow-hidden">
                     ${bookmark.content}
                 </p>
                 <div class="flex justify-between items-center mb-3">
                     <div class="flex space-x-1">
-                        ${tagNames.map(name => `<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full">${name}</span>`).join('')}
+                        ${tagNames.map(name => `<span class="text-xs px-2 py-0.5 text-gray-600">${name}</span>`).join('')}
                     </div>
+                    <span class="text-xs text-gray-500">${formattedDate}</span>
                 </div>
                 <div class="bookmark-actions hidden grid grid-cols-3 gap-2 mb-2">
                     <button class="action-btn share-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
@@ -486,8 +487,7 @@ class App {
                         <span class="text-xs text-gray-500">删除</span>
                     </button>
                 </div>
-            `;
-            
+            `
             bookmarkList.appendChild(bookmarkEl);
 
             // 为书签项添加点击展开/收起功能
