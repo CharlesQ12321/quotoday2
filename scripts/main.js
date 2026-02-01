@@ -35,6 +35,9 @@ class App {
         
         // 加载作者选项
         this.loadAuthorOptions();
+        
+        // 加载创建页面的标签下拉菜单
+        this.loadCreatePageTagOptions();
     }
 
     // 加载标签选项
@@ -54,6 +57,28 @@ class App {
         tags.forEach(tag => {
             const option = document.createElement('option');
             option.value = tag.id;
+            option.textContent = tag.name;
+            tagSelect.appendChild(option);
+        });
+    }
+    
+    // 加载创建页面的标签下拉菜单
+    loadCreatePageTagOptions() {
+        const tagSelect = document.getElementById('tag-input');
+        if (!tagSelect) return;
+        
+        // 清空现有选项（保留默认选项）
+        while (tagSelect.options.length > 1) {
+            tagSelect.remove(1);
+        }
+        
+        // 获取所有标签
+        const tags = storage.getTags();
+        
+        // 添加标签选项
+        tags.forEach(tag => {
+            const option = document.createElement('option');
+            option.value = tag.name;
             option.textContent = tag.name;
             tagSelect.appendChild(option);
         });
@@ -644,6 +669,9 @@ class App {
         
         // 重新加载筛选选项
         this.loadFilterOptions();
+        
+        // 重新加载创建页面的标签下拉菜单
+        this.loadCreatePageTagOptions();
     }
 
     // 渲染标签列表
