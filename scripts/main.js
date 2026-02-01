@@ -18,8 +18,95 @@ class App {
         this.renderBookmarks();
         this.renderTags();
         
+        // 加载筛选下拉菜单选项
+        this.loadFilterOptions();
+        
         // 应用保存的样式
         this.applySavedStyle();
+    }
+
+    // 加载筛选下拉菜单选项
+    loadFilterOptions() {
+        // 加载标签选项
+        this.loadTagOptions();
+        
+        // 加载书名选项
+        this.loadTitleOptions();
+        
+        // 加载作者选项
+        this.loadAuthorOptions();
+    }
+
+    // 加载标签选项
+    loadTagOptions() {
+        const tagSelect = document.getElementById('filter-tag');
+        if (!tagSelect) return;
+        
+        // 清空现有选项（保留默认选项）
+        while (tagSelect.options.length > 1) {
+            tagSelect.remove(1);
+        }
+        
+        // 获取所有标签
+        const tags = storage.getTags();
+        
+        // 添加标签选项
+        tags.forEach(tag => {
+            const option = document.createElement('option');
+            option.value = tag.id;
+            option.textContent = tag.name;
+            tagSelect.appendChild(option);
+        });
+    }
+
+    // 加载书名选项
+    loadTitleOptions() {
+        const titleSelect = document.getElementById('filter-title');
+        if (!titleSelect) return;
+        
+        // 清空现有选项（保留默认选项）
+        while (titleSelect.options.length > 1) {
+            titleSelect.remove(1);
+        }
+        
+        // 获取所有书签
+        const bookmarks = storage.getBookmarks();
+        
+        // 提取唯一的书名
+        const titles = [...new Set(bookmarks.map(bookmark => bookmark.title))];
+        
+        // 添加书名选项
+        titles.forEach(title => {
+            const option = document.createElement('option');
+            option.value = title;
+            option.textContent = title;
+            titleSelect.appendChild(option);
+        });
+    }
+
+    // 加载作者选项
+    loadAuthorOptions() {
+        const authorSelect = document.getElementById('filter-author');
+        if (!authorSelect) return;
+        
+        // 清空现有选项（保留默认选项）
+        while (authorSelect.options.length > 1) {
+            authorSelect.remove(1);
+        }
+        
+        // 获取所有书签
+        const bookmarks = storage.getBookmarks();
+        
+        // 提取唯一的作者
+        const authors = [...new Set(bookmarks.map(bookmark => bookmark.author))];
+        
+        // 添加作者选项
+        authors.forEach(author => {
+            const option = document.createElement('option');
+            option.value = author;
+            option.textContent = author;
+            authorSelect.appendChild(option);
+        });
     }
 
     // 自动调整文本框高度
@@ -69,25 +156,24 @@ class App {
             });
         }
 
-        // 标签过滤
-        document.querySelectorAll('.tag-filter')?.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.tag-filter').forEach(b => b.classList.remove('active', 'bg-primary', 'text-white'));
-                document.querySelectorAll('.tag-filter').forEach(b => b.classList.add('bg-gray-200', 'text-gray-700'));
-                e.currentTarget.classList.add('active', 'bg-primary', 'text-white');
-                e.currentTarget.classList.remove('bg-gray-200', 'text-gray-700');
-                // 实现过滤逻辑
-                const tagName = e.currentTarget.textContent.trim();
-                if (tagName === '全部') {
-                    this.renderBookmarks();
-                } else {
-                    const tag = storage.getTags().find(t => t.name === tagName);
-                    if (tag) {
-                        bookmarkManager.filterBookmarksByTag(tag.id);
-                    }
-                }
-            });
-        });
+        // 筛选下拉菜单
+        const filterTagSelect = document.getElementById('filter-tag');
+        const filterTitleSelect = document.getElementById('filter-title');
+        const filterAuthorSelect = document.getElementById('filter-author');
+        
+        if (filterTagSelect && filterTitleSelect && filterAuthorSelect) {
+            // 保存this上下文
+            const self = this;
+            
+            // 使用防抖函数优化实时筛选
+            const debouncedFilter = debounce(function() {
+                self.filterBookmarks();
+            }, 300);
+            
+            filterTagSelect.addEventListener('change', debouncedFilter);
+            filterTitleSelect.addEventListener('change', debouncedFilter);
+            filterAuthorSelect.addEventListener('change', debouncedFilter);
+        }
 
         // 样式切换
         document.querySelectorAll('.style-btn')?.forEach((btn, index) => {
@@ -473,7 +559,11 @@ class App {
                     </div>
                     <span class="text-xs text-gray-500">${formattedDate}</span>
                 </div>
-                <div class="bookmark-actions hidden grid grid-cols-3 gap-2 mb-2">
+                <div class="bookmark-actions hidden grid grid-cols-4 gap-2 mb-2">
+                    <button class="action-btn view-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                        <i class="fa fa-eye text-gray-500 mb-1"></i>
+                        <span class="text-xs text-gray-500">查看</span>
+                    </button>
                     <button class="action-btn share-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
                         <i class="fa fa-share-alt text-gray-500 mb-1"></i>
                         <span class="text-xs text-gray-500">分享</span>
@@ -487,7 +577,8 @@ class App {
                         <span class="text-xs text-gray-500">删除</span>
                     </button>
                 </div>
-            `
+            `;
+            
             bookmarkList.appendChild(bookmarkEl);
 
             // 为书签项添加点击展开/收起功能
@@ -519,6 +610,14 @@ class App {
         });
 
         // 绑定操作按钮事件
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const bookmarkId = e.currentTarget.dataset.id;
+                app.viewBookmark(bookmarkId);
+            });
+        });
+
         document.querySelectorAll('.share-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -542,6 +641,9 @@ class App {
                 bookmarkManager.deleteBookmark(bookmarkId);
             });
         });
+        
+        // 重新加载筛选选项
+        this.loadFilterOptions();
     }
 
     // 渲染标签列表
@@ -559,8 +661,8 @@ class App {
             
             tagEl.innerHTML = `
                 <div class="flex items-center">
-                    <div class="w-3 h-3 rounded-full" style="background-color: ${tag.color};" mr-3></div>
-                    <span class="font-medium">${tag.name}</span>
+                    <div class="w-3 h-3 rounded-full" style="background-color: ${tag.color};"></div>
+                    <span class="font-medium ml-3">${tag.name}</span>
                 </div>
                 <div class="flex items-center">
                     <span class="text-xs text-gray-500 mr-4">使用 ${tag.count} 次</span>
@@ -590,6 +692,9 @@ class App {
                 tagManager.deleteTag(tagId);
             });
         });
+        
+        // 重新加载筛选选项
+        this.loadFilterOptions();
     }
 
     // 显示书签详情
@@ -1007,6 +1112,160 @@ class App {
         });
     }
 
+    // 筛选书签
+    filterBookmarks() {
+        const bookmarks = storage.getBookmarks();
+        
+        const tagFilter = document.getElementById('filter-tag')?.value || '';
+        const titleFilter = document.getElementById('filter-title')?.value || '';
+        const authorFilter = document.getElementById('filter-author')?.value || '';
+        
+        let filteredBookmarks = bookmarks;
+        
+        // 按标签筛选
+        if (tagFilter) {
+            filteredBookmarks = filteredBookmarks.filter(bookmark => 
+                bookmark.tags.includes(tagFilter)
+            );
+        }
+        
+        // 按书名筛选
+        if (titleFilter) {
+            filteredBookmarks = filteredBookmarks.filter(bookmark => 
+                bookmark.title === titleFilter
+            );
+        }
+        
+        // 按作者筛选
+        if (authorFilter) {
+            filteredBookmarks = filteredBookmarks.filter(bookmark => 
+                bookmark.author === authorFilter
+            );
+        }
+        
+        // 渲染筛选结果
+        const bookmarkList = document.getElementById('bookmark-list');
+        if (!bookmarkList) return;
+
+        bookmarkList.innerHTML = '';
+        
+        if (filteredBookmarks.length === 0) {
+            bookmarkList.innerHTML = '<div class="text-center py-8 text-gray-500">没有找到匹配的书签</div>';
+            return;
+        }
+        
+        filteredBookmarks.forEach(bookmark => {
+            const bookmarkEl = document.createElement('div');
+            bookmarkEl.className = 'bookmark-item p-4 bg-gray-50 rounded-lg shadow-sm card-hover';
+            
+            // 格式化日期
+            const date = new Date(bookmark.created_at);
+            const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            
+            // 获取标签名称
+            const tagNames = bookmark.tags.map(tagId => {
+                const tag = storage.getTag(tagId);
+                return tag ? tag.name : '';
+            }).filter(Boolean);
+            
+            bookmarkEl.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="font-semibold">${bookmark.title}</h3>
+                    <span class="font-semibold text-sm">${bookmark.author}</span>
+                </div>
+                <p class="text-sm text-gray-600 mb-3 bookmark-content transition-all duration-300 overflow-hidden">
+                    ${bookmark.content}
+                </p>
+                <div class="flex justify-between items-center mb-3">
+                    <div class="flex space-x-1">
+                        ${tagNames.map(name => `<span class="text-xs px-2 py-0.5 text-gray-600">${name}</span>`).join('')}
+                    </div>
+                    <span class="text-xs text-gray-500">${formattedDate}</span>
+                </div>
+                <div class="bookmark-actions hidden grid grid-cols-4 gap-2 mb-2">
+                    <button class="action-btn view-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                        <i class="fa fa-eye text-gray-500 mb-1"></i>
+                        <span class="text-xs text-gray-500">查看</span>
+                    </button>
+                    <button class="action-btn share-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                        <i class="fa fa-share-alt text-gray-500 mb-1"></i>
+                        <span class="text-xs text-gray-500">分享</span>
+                    </button>
+                    <button class="action-btn edit-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                        <i class="fa fa-edit text-gray-500 mb-1"></i>
+                        <span class="text-xs text-gray-500">编辑</span>
+                    </button>
+                    <button class="action-btn delete-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                        <i class="fa fa-trash text-gray-500 mb-1"></i>
+                        <span class="text-xs text-gray-500">删除</span>
+                    </button>
+                </div>
+            `;
+            
+            bookmarkList.appendChild(bookmarkEl);
+
+            // 为书签项添加点击展开/收起功能
+            bookmarkEl.addEventListener('click', (e) => {
+                // 避免点击操作按钮时触发
+                if (!e.target.closest('.action-btn')) {
+                    const contentEl = bookmarkEl.querySelector('.bookmark-content');
+                    const actionsEl = bookmarkEl.querySelector('.bookmark-actions');
+                    
+                    // 先关闭所有其他书签的展开状态
+                    document.querySelectorAll('.bookmark-item').forEach(item => {
+                        if (item !== bookmarkEl) {
+                            const itemContent = item.querySelector('.bookmark-content');
+                            const itemActions = item.querySelector('.bookmark-actions');
+                            if (itemContent) itemContent.classList.remove('expanded');
+                            if (itemActions) itemActions.classList.add('hidden');
+                        }
+                    });
+                    
+                    // 切换当前书签的展开状态
+                    if (contentEl) {
+                        contentEl.classList.toggle('expanded');
+                    }
+                    if (actionsEl) {
+                        actionsEl.classList.toggle('hidden');
+                    }
+                }
+            });
+        });
+
+        // 绑定操作按钮事件
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const bookmarkId = e.currentTarget.dataset.id;
+                app.viewBookmark(bookmarkId);
+            });
+        });
+
+        document.querySelectorAll('.share-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const bookmarkId = e.currentTarget.dataset.id;
+                shareService.shareBookmark(bookmarkId);
+            });
+        });
+
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const bookmarkId = e.currentTarget.dataset.id;
+                bookmarkManager.editBookmark(bookmarkId);
+            });
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const bookmarkId = e.currentTarget.dataset.id;
+                bookmarkManager.deleteBookmark(bookmarkId);
+            });
+        });
+    }
+
     // 显示提示信息
     showToast(message, type = 'success') {
         const toast = document.getElementById(type === 'success' ? 'success-toast' : 'error-toast');
@@ -1044,6 +1303,143 @@ class App {
         if (loading) {
             loading.classList.add('hidden');
         }
+    }
+
+    // 查看书签
+    viewBookmark(id) {
+        const bookmark = storage.getBookmark(id);
+        if (!bookmark) return;
+
+        // 获取当前设置的风格
+        const settings = storage.getSettings();
+        const styleNumber = settings.style || '1';
+
+        // 根据风格设置背景颜色
+        let backgroundColor = '#f3f4f6'; // 默认风格1背景
+        if (styleNumber === '2') {
+            backgroundColor = '#F5F5F4'; // 风格2背景
+        } else if (styleNumber === '3') {
+            backgroundColor = '#0F172A'; // 风格3背景
+        }
+
+        // 创建查看模式容器
+        const viewContainer = document.createElement('div');
+        viewContainer.className = 'fixed inset-0 flex items-center justify-center z-50';
+        viewContainer.id = 'bookmark-view-container';
+        viewContainer.style.backgroundColor = backgroundColor;
+
+        // 创建书签内容容器
+        const contentContainer = document.createElement('div');
+        contentContainer.className = 'w-full max-w-2xl p-6';
+
+        // 创建书签卡片
+        const bookmarkCard = document.createElement('div');
+        bookmarkCard.className = 'p-6 rounded-lg shadow-sm';
+        bookmarkCard.style.border = 'none'; // 取消查看状态下的边框
+        bookmarkCard.style.backgroundColor = styleNumber === '3' ? '#1E293B' : '#FFFFFF';
+
+        // 创建内容包装器，用于垂直居中
+        const contentWrapper = document.createElement('div');
+        contentWrapper.className = 'flex flex-col';
+        contentWrapper.style.width = '100%';
+        contentWrapper.style.maxWidth = '800px';
+        contentWrapper.style.margin = 'auto';
+
+        // 创建标题和作者信息（与首页一致：左上、右上）
+        const infoContainer = document.createElement('div');
+        infoContainer.className = 'flex justify-between items-start mb-4';
+        infoContainer.style.color = styleNumber === '3' ? '#F8FAFC' : '#1F2937';
+        infoContainer.innerHTML = `
+            <h3 class="font-semibold">${bookmark.title}</h3>
+            <span class="font-semibold text-sm">${bookmark.author}</span>
+        `;
+
+        // 创建内容区域（垂直居中）
+        const textContainer = document.createElement('div');
+        textContainer.className = 'py-6';
+        textContainer.style.minHeight = '100px'; // 确保有最小高度，避免内容太少时显得拥挤
+        
+        // 创建文本元素
+        const contentText = document.createElement('div');
+        contentText.className = 'text-sm leading-relaxed';
+        contentText.style.color = styleNumber === '3' ? '#F8FAFC' : '#374151';
+        contentText.style.whiteSpace = 'pre-wrap';
+        contentText.style.wordWrap = 'break-word';
+        contentText.textContent = bookmark.content;
+
+        // 创建日期和标签信息（与首页一致：左下、右下）
+        const metaContainer = document.createElement('div');
+        metaContainer.className = 'flex justify-between items-center mt-4';
+        
+        // 标签容器
+        const tagsContainer = document.createElement('div');
+        tagsContainer.className = 'flex flex-wrap gap-1';
+        
+        // 获取标签名称
+        const tagNames = bookmark.tags.map(tagId => {
+            const tag = storage.getTag(tagId);
+            return tag ? tag.name : '';
+        }).filter(Boolean);
+        
+        tagNames.forEach(name => {
+            const tagEl = document.createElement('span');
+            tagEl.className = 'text-xs px-2 py-0.5';
+            tagEl.style.color = styleNumber === '3' ? '#94A3B8' : '#6B7280';
+            tagEl.textContent = name;
+            tagsContainer.appendChild(tagEl);
+        });
+        
+        // 日期信息
+        const dateContainer = document.createElement('div');
+        dateContainer.className = 'text-xs';
+        dateContainer.style.color = styleNumber === '3' ? '#94A3B8' : '#6B7280';
+        
+        // 格式化日期
+        const date = new Date(bookmark.created_at);
+        const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        dateContainer.textContent = formattedDate;
+        
+        // 创建关闭按钮
+        const closeButton = document.createElement('button');
+        closeButton.className = 'absolute top-6 right-6 text-3xl';
+        closeButton.style.color = styleNumber === '3' ? '#94A3B8' : '#6B7280';
+        closeButton.innerHTML = '&times;';
+        closeButton.addEventListener('click', () => {
+            document.body.removeChild(viewContainer);
+        });
+
+        // 组装容器
+        contentWrapper.appendChild(infoContainer);
+        textContainer.appendChild(contentText);
+        contentWrapper.appendChild(textContainer);
+        metaContainer.appendChild(tagsContainer);
+        metaContainer.appendChild(dateContainer);
+        contentWrapper.appendChild(metaContainer);
+        bookmarkCard.appendChild(contentWrapper);
+        contentContainer.appendChild(bookmarkCard);
+        viewContainer.appendChild(contentContainer);
+        viewContainer.appendChild(closeButton);
+
+        // 应用用户选定的风格
+        const styleLink = document.getElementById('current-style');
+        if (styleLink) {
+            const styleUrl = styleLink.href;
+            const viewStyleLink = document.createElement('link');
+            viewStyleLink.rel = 'stylesheet';
+            viewStyleLink.href = styleUrl;
+            viewStyleLink.id = 'view-style';
+            viewContainer.appendChild(viewStyleLink);
+        }
+
+        // 添加到文档
+        document.body.appendChild(viewContainer);
+
+        // 点击背景也可以关闭
+        viewContainer.addEventListener('click', (e) => {
+            if (e.target === viewContainer) {
+                document.body.removeChild(viewContainer);
+            }
+        });
     }
 }
 
