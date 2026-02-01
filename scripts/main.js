@@ -1017,9 +1017,6 @@ class App {
                 }
             });
             
-            // 获取字体大小
-            const fontSize = document.getElementById('font-size').value;
-            
             // 创建书签对象
             const bookmark = {
                 title,
@@ -1028,8 +1025,7 @@ class App {
                 content,
                 note,
                 tags,
-                template,
-                font_size: parseInt(fontSize)
+                template
             };
             
             // 保存书签

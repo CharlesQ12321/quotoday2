@@ -84,9 +84,6 @@ class BookmarkManager {
                 }
             });
             
-            // 获取字体大小
-            const fontSize = document.getElementById('font-size').value;
-            
             // 只有当line-height元素存在时才获取
             const lineHeightElement = document.getElementById('line-height');
             const lineHeight = lineHeightElement ? lineHeightElement.value : '1.5';
@@ -100,7 +97,6 @@ class BookmarkManager {
                 note,
                 tags,
                 template,
-                font_size: parseInt(fontSize),
                 line_height: parseFloat(lineHeight)
             };
             
@@ -198,8 +194,7 @@ class BookmarkManager {
                 break;
         }
         
-        // 设置字体大小和行间距
-        preview.style.fontSize = `${bookmark.font_size}px`;
+        // 设置行间距
         preview.style.lineHeight = bookmark.line_height;
         
         // 格式化日期
@@ -282,9 +277,6 @@ class BookmarkManager {
                 btn.classList.add('border-gray-300');
             }
         });
-        
-        // 设置字体大小
-        document.getElementById('font-size').value = bookmark.font_size;
         
         // 只有当line-height元素存在时才设置
         const lineHeightElement = document.getElementById('line-height');

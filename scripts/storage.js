@@ -27,7 +27,6 @@ class StorageManager {
                     tags: ['读书笔记'],
                     created_at: new Date().toISOString(),
                     template: '1',
-                    font_size: 16,
                     line_height: 1.5
                 },
                 {
@@ -40,7 +39,6 @@ class StorageManager {
                     tags: ['名言'],
                     created_at: new Date(Date.now() - 86400000).toISOString(),
                     template: '1',
-                    font_size: 16,
                     line_height: 1.5
                 }
             ];
@@ -79,7 +77,6 @@ class StorageManager {
             const defaultSettings = {
                 style: '1',
                 default_template: '1',
-                default_font_size: 16,
                 default_line_height: 1.5
             };
             localStorage.setItem(this.SETTINGS_KEY, JSON.stringify(defaultSettings));
@@ -210,7 +207,6 @@ class StorageManager {
         return settings ? JSON.parse(settings) : {
             style: '1',
             default_template: '1',
-            default_font_size: 16,
             default_line_height: 1.5
         };
     }
