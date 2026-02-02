@@ -38,6 +38,10 @@ class App {
         
         // 加载创建页面的标签下拉菜单
         this.loadCreatePageTagOptions();
+        
+        // 加载创建页面的书名和作者选项
+        this.loadCreatePageTitleOptions();
+        this.loadCreatePageAuthorOptions();
     }
 
     // 加载标签选项
@@ -81,6 +85,60 @@ class App {
             option.value = tag.name;
             option.textContent = tag.name;
             tagSelect.appendChild(option);
+        });
+    }
+
+    // 加载创建页面的书名选项
+    loadCreatePageTitleOptions() {
+        const titleDropdown = document.getElementById('book-title-dropdown');
+        if (!titleDropdown) return;
+        
+        // 清空现有选项
+        titleDropdown.innerHTML = '';
+        
+        // 获取所有书签
+        const bookmarks = storage.getBookmarks();
+        
+        // 提取唯一的书名
+        const titles = [...new Set(bookmarks.map(bookmark => bookmark.title))];
+        
+        // 添加书名选项
+        titles.forEach(title => {
+            const option = document.createElement('div');
+            option.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+            option.textContent = title;
+            option.addEventListener('click', () => {
+                document.getElementById('book-title').value = title;
+                titleDropdown.classList.add('hidden');
+            });
+            titleDropdown.appendChild(option);
+        });
+    }
+
+    // 加载创建页面的作者选项
+    loadCreatePageAuthorOptions() {
+        const authorDropdown = document.getElementById('book-author-dropdown');
+        if (!authorDropdown) return;
+        
+        // 清空现有选项
+        authorDropdown.innerHTML = '';
+        
+        // 获取所有书签
+        const bookmarks = storage.getBookmarks();
+        
+        // 提取唯一的作者
+        const authors = [...new Set(bookmarks.map(bookmark => bookmark.author))];
+        
+        // 添加作者选项
+        authors.forEach(author => {
+            const option = document.createElement('div');
+            option.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+            option.textContent = author;
+            option.addEventListener('click', () => {
+                document.getElementById('book-author').value = author;
+                authorDropdown.classList.add('hidden');
+            });
+            authorDropdown.appendChild(option);
         });
     }
 
@@ -467,6 +525,37 @@ class App {
             }
         });
 
+        // 书名下拉按钮点击事件
+        document.getElementById('book-title-dropdown-btn')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const dropdown = document.getElementById('book-title-dropdown');
+            // 切换下拉菜单显示状态
+            dropdown.classList.toggle('hidden');
+            // 隐藏作者下拉菜单
+            document.getElementById('book-author-dropdown').classList.add('hidden');
+        });
+
+        // 作者下拉按钮点击事件
+        document.getElementById('book-author-dropdown-btn')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const dropdown = document.getElementById('book-author-dropdown');
+            // 切换下拉菜单显示状态
+            dropdown.classList.toggle('hidden');
+            // 隐藏书名下拉菜单
+            document.getElementById('book-title-dropdown').classList.add('hidden');
+        });
+
+        // 点击页面其他区域时下拉菜单自动隐藏
+        document.addEventListener('click', (e) => {
+            // 检查点击是否在下拉菜单或下拉按钮之外
+            if (!e.target.closest('#book-title-dropdown') && !e.target.closest('#book-title-dropdown-btn') &&
+                !e.target.closest('#book-author-dropdown') && !e.target.closest('#book-author-dropdown-btn')) {
+                // 隐藏所有下拉菜单
+                document.getElementById('book-title-dropdown').classList.add('hidden');
+                document.getElementById('book-author-dropdown').classList.add('hidden');
+            }
+        });
+
         // 点击空白区域收起已打开的书签
         document.addEventListener('click', (e) => {
             // 检查点击是否在书签项或操作按钮之外
@@ -650,8 +739,10 @@ class App {
         // 重新加载筛选选项
         this.loadFilterOptions();
         
-        // 重新加载创建页面的标签下拉菜单
+        // 重新加载创建页面的标签、书名和作者下拉菜单
         this.loadCreatePageTagOptions();
+        this.loadCreatePageTitleOptions();
+        this.loadCreatePageAuthorOptions();
     }
 
     // 渲染标签列表
