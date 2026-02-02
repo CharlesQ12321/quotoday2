@@ -340,10 +340,10 @@ class App {
             }
         });
 
-        // 分享按钮
-        document.querySelector('#detail-page .fa-share-alt')?.parentElement.addEventListener('click', () => {
+        // 保存按钮
+        document.querySelector('#detail-page .fa-download')?.parentElement.addEventListener('click', () => {
             if (this.currentBookmarkId) {
-                shareService.shareBookmark(this.currentBookmarkId);
+                this.saveBookmarkAsImage(this.currentBookmarkId);
             }
         });
 
@@ -568,14 +568,10 @@ class App {
                     </div>
                     <span class="text-xs text-gray-500">${formattedDate}</span>
                 </div>
-                <div class="bookmark-actions hidden grid grid-cols-4 gap-2 mb-2">
+                <div class="bookmark-actions hidden grid grid-cols-3 gap-2 mb-2">
                     <button class="action-btn view-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
                         <i class="fa fa-eye text-gray-500 mb-1"></i>
                         <span class="text-xs text-gray-500">查看</span>
-                    </button>
-                    <button class="action-btn share-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
-                        <i class="fa fa-share-alt text-gray-500 mb-1"></i>
-                        <span class="text-xs text-gray-500">分享</span>
                     </button>
                     <button class="action-btn edit-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
                         <i class="fa fa-edit text-gray-500 mb-1"></i>
@@ -627,11 +623,11 @@ class App {
             });
         });
 
-        document.querySelectorAll('.share-btn').forEach(btn => {
+        document.querySelectorAll('.save-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const bookmarkId = e.currentTarget.dataset.id;
-                shareService.shareBookmark(bookmarkId);
+                this.saveBookmarkAsImage(bookmarkId);
             });
         });
 
@@ -1184,14 +1180,10 @@ class App {
                     </div>
                     <span class="text-xs text-gray-500">${formattedDate}</span>
                 </div>
-                <div class="bookmark-actions hidden grid grid-cols-4 gap-2 mb-2">
+                <div class="bookmark-actions hidden grid grid-cols-3 gap-2 mb-2">
                     <button class="action-btn view-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
                         <i class="fa fa-eye text-gray-500 mb-1"></i>
                         <span class="text-xs text-gray-500">查看</span>
-                    </button>
-                    <button class="action-btn share-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
-                        <i class="fa fa-share-alt text-gray-500 mb-1"></i>
-                        <span class="text-xs text-gray-500">分享</span>
                     </button>
                     <button class="action-btn edit-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
                         <i class="fa fa-edit text-gray-500 mb-1"></i>
@@ -1243,11 +1235,11 @@ class App {
             });
         });
 
-        document.querySelectorAll('.share-btn').forEach(btn => {
+        document.querySelectorAll('.save-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const bookmarkId = e.currentTarget.dataset.id;
-                shareService.shareBookmark(bookmarkId);
+                this.saveBookmarkAsImage(bookmarkId);
             });
         });
 
@@ -1305,6 +1297,151 @@ class App {
         if (loading) {
             loading.classList.add('hidden');
         }
+    }
+
+    // 保存书签为图片
+    async saveBookmarkAsImage(id) {
+        try {
+            // 显示加载状态
+            this.showLoading();
+            
+            // 确保书签详情页已加载
+            this.showBookmarkDetail(id);
+            
+            // 等待页面渲染完成
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // 获取书签详情页的内容
+            const bookmarkPreview = document.getElementById('bookmark-preview');
+            if (!bookmarkPreview) {
+                throw new Error('找不到书签预览元素');
+            }
+            
+            // 使用html2canvas将内容转换为图片
+            const canvas = await html2canvas(bookmarkPreview, {
+                scale: 2, // 提高图片质量
+                useCORS: true, // 允许加载跨域图片
+                logging: false,
+                backgroundColor: '#ffffff'
+            });
+            
+            // 将canvas转换为图片数据URL
+            const imageDataUrl = canvas.toDataURL('image/png');
+            
+            // 调用保存图片到相册的方法
+            await this.saveImageToGallery(imageDataUrl);
+            
+            // 显示成功提示
+            this.showSuccessToast('书签已保存到相册');
+        } catch (error) {
+            console.error('保存书签为图片失败:', error);
+            this.showErrorToast('保存失败，请稍后重试');
+        } finally {
+            this.hideLoading();
+        }
+    }
+
+    // 保存图片到设备
+    async saveImageToGallery(imageDataUrl) {
+        try {
+            // 创建保存确认模态框
+            const modal = this.createSaveConfirmModal(imageDataUrl);
+            document.body.appendChild(modal);
+        } catch (error) {
+            console.error('保存图片失败:', error);
+            throw error;
+        }
+    }
+
+    // 创建保存确认模态框
+    createSaveConfirmModal(imageDataUrl) {
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.id = 'save-confirm-modal';
+        
+        const modalContent = document.createElement('div');
+        modalContent.className = 'bg-white rounded-lg p-6 w-4/5 max-w-sm';
+        
+        const modalTitle = document.createElement('h3');
+        modalTitle.className = 'text-lg font-bold mb-4 text-center';
+        modalTitle.textContent = '保存书签图片';
+        
+        const modalBody = document.createElement('div');
+        modalBody.className = 'mb-6';
+        
+        const saveInfo = document.createElement('p');
+        saveInfo.className = 'text-sm text-gray-600 mb-4';
+        saveInfo.textContent = '请点击下方按钮保存书签图片，保存后可在相册中查看。';
+        
+        const imagePreview = document.createElement('div');
+        imagePreview.className = 'w-full h-40 bg-gray-100 rounded-lg mb-4 flex items-center justify-center';
+        
+        const previewImg = document.createElement('img');
+        previewImg.src = imageDataUrl;
+        previewImg.className = 'max-w-full max-h-full object-contain';
+        imagePreview.appendChild(previewImg);
+        
+        const modalFooter = document.createElement('div');
+        modalFooter.className = 'flex justify-center space-x-3';
+        
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm';
+        cancelBtn.textContent = '取消';
+        cancelBtn.addEventListener('click', () => {
+            modal.remove();
+        });
+        
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'px-4 py-2 bg-primary text-white rounded-lg text-sm';
+        saveBtn.textContent = '保存图片';
+        saveBtn.addEventListener('click', () => {
+            // 创建一个链接元素用于下载
+            const link = document.createElement('a');
+            link.href = imageDataUrl;
+            link.download = `bookmark-${new Date().toISOString().split('T')[0]}.png`;
+            
+            // 确保链接在文档中
+            document.body.appendChild(link);
+            
+            // 触发点击事件
+            link.click();
+            
+            // 清理
+            setTimeout(() => {
+                document.body.removeChild(link);
+                URL.revokeObjectURL(imageDataUrl);
+                modal.remove();
+                
+                // 检查是否在移动设备上
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                if (isMobile) {
+                    app.showSuccessToast('图片已保存到下载文件夹，稍后会出现在相册中');
+                } else {
+                    app.showSuccessToast('图片保存成功');
+                }
+            }, 100);
+        });
+        
+        modalBody.appendChild(saveInfo);
+        modalBody.appendChild(imagePreview);
+        
+        modalFooter.appendChild(cancelBtn);
+        modalFooter.appendChild(saveBtn);
+        
+        modalContent.appendChild(modalTitle);
+        modalContent.appendChild(modalBody);
+        modalContent.appendChild(modalFooter);
+        
+        modal.appendChild(modalContent);
+        
+        // 点击模态框外部关闭
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+        
+        return modal;
     }
 
     // 查看书签
