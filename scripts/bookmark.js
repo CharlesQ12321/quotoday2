@@ -76,14 +76,6 @@ class BookmarkManager {
                 tags.push(existingTag.id);
             });
             
-            // 获取选中的模板
-            let template = '1';
-            document.querySelectorAll('.template-btn').forEach((btn, index) => {
-                if (btn.classList.contains('border-primary')) {
-                    template = (index + 1).toString();
-                }
-            });
-            
             // 只有当line-height元素存在时才获取
             const lineHeightElement = document.getElementById('line-height');
             const lineHeight = lineHeightElement ? lineHeightElement.value : '1.5';
@@ -96,7 +88,6 @@ class BookmarkManager {
                 content,
                 note,
                 tags,
-                template,
                 line_height: parseFloat(lineHeight)
             };
             
@@ -178,21 +169,9 @@ class BookmarkManager {
         const preview = document.createElement('div');
         preview.className = 'bookmark-preview p-6 rounded-lg';
         
-        // 根据模板设置样式
-        switch (bookmark.template) {
-            case '1':
-                preview.style.backgroundColor = '#F9FAFB';
-                preview.style.border = '1px solid #E5E7EB';
-                break;
-            case '2':
-                preview.style.backgroundColor = '#FEF3C7';
-                preview.style.border = '1px solid #FDE68A';
-                break;
-            case '3':
-                preview.style.backgroundColor = '#1E293B';
-                preview.style.border = '1px solid #334155';
-                break;
-        }
+        // 设置默认样式
+        preview.style.backgroundColor = '#F9FAFB';
+        preview.style.border = '1px solid #E5E7EB';
         
         // 设置行间距
         preview.style.lineHeight = bookmark.line_height;
@@ -264,17 +243,6 @@ class BookmarkManager {
             const tag = storage.getTag(tagId);
             if (tag) {
                 app.addTagToInput(tag.name);
-            }
-        });
-        
-        // 选择模板
-        document.querySelectorAll('.template-btn').forEach((btn, index) => {
-            if (index + 1 === parseInt(bookmark.template)) {
-                btn.classList.add('border-primary');
-                btn.classList.remove('border-gray-300');
-            } else {
-                btn.classList.remove('border-primary');
-                btn.classList.add('border-gray-300');
             }
         });
         

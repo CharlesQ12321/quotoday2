@@ -993,14 +993,6 @@ class App {
                 tags.push(existingTag.id);
             });
             
-            // 获取选中的模板
-            let template = '1';
-            document.querySelectorAll('.template-btn').forEach((btn, index) => {
-                if (btn.classList.contains('border-primary')) {
-                    template = (index + 1).toString();
-                }
-            });
-            
             // 创建书签对象
             const bookmark = {
                 title,
@@ -1008,8 +1000,7 @@ class App {
                 page,
                 content,
                 note,
-                tags,
-                template
+                tags
             };
             
             // 保存书签
