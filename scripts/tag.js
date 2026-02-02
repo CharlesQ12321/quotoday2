@@ -115,20 +115,6 @@ class TagManager {
         app.showSuccessToast('标签添加成功');
     }
 
-    // 获取选中的颜色
-    getSelectedColor(container = '') {
-        let selector = '.w-6.h-6.rounded-full.border-2';
-        if (container) {
-            selector = `#${container} ${selector}`;
-        }
-        
-        const selectedColorBtn = document.querySelector(selector);
-        if (selectedColorBtn) {
-            return window.getComputedStyle(selectedColorBtn).backgroundColor;
-        }
-        return '#3B82F6'; // 默认颜色
-    }
-
     // 编辑标签
     editTag(id) {
         this.openEditTagModal(id);

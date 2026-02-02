@@ -215,30 +215,11 @@ class App {
 
         // 添加标签模态框
         document.getElementById('add-tag-modal-btn')?.addEventListener('click', () => {
-            document.getElementById('add-tag-modal').classList.remove('hidden');
+            tagManager.openAddTagModal();
         });
 
         document.getElementById('cancel-add-tag')?.addEventListener('click', () => {
-            document.getElementById('add-tag-modal').classList.add('hidden');
-        });
-
-        document.getElementById('confirm-add-tag')?.addEventListener('click', () => {
-            const tagName = document.getElementById('new-tag-name').value.trim();
-            if (tagName) {
-                const selectedColor = document.querySelector('.w-6.h-6.rounded-full.border-2')?.style.backgroundColor || '#3B82F6';
-                storage.saveTag({ name: tagName, color: selectedColor });
-                this.renderTags();
-                document.getElementById('add-tag-modal').classList.add('hidden');
-                document.getElementById('new-tag-name').value = '';
-            }
-        });
-
-        // 颜色选择
-        document.querySelectorAll('.w-6.h-6.rounded-full')?.forEach(colorBtn => {
-            colorBtn.addEventListener('click', (e) => {
-                document.querySelectorAll('.w-6.h-6.rounded-full').forEach(b => b.classList.remove('border-2', 'border-white', 'shadow-sm'));
-                e.currentTarget.classList.add('border-2', 'border-white', 'shadow-sm');
-            });
+            tagManager.closeAddTagModal();
         });
 
         // 图片上传
@@ -503,6 +484,9 @@ class App {
 
     // 页面导航
     navigateTo(page) {
+        // 如果目标页面就是当前页面，直接返回
+        if (page === this.currentPage) return;
+        
         // 获取当前页面和目标页面
         const currentPageEl = document.getElementById(this.currentPage);
         const targetPageEl = document.getElementById(page);
