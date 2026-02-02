@@ -208,6 +208,12 @@ class App {
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const page = e.currentTarget.dataset.page;
+                
+                // 如果是点击创建页面按钮，重置表单
+                if (page === 'create-page') {
+                    bookmarkManager.resetForm();
+                }
+                
                 this.navigateTo(page);
             });
         });
