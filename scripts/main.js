@@ -68,23 +68,25 @@ class App {
     
     // 加载创建页面的标签下拉菜单
     loadCreatePageTagOptions() {
-        const tagSelect = document.getElementById('tag-input');
-        if (!tagSelect) return;
+        const tagDropdown = document.getElementById('tag-dropdown');
+        if (!tagDropdown) return;
         
-        // 清空现有选项（保留默认选项）
-        while (tagSelect.options.length > 1) {
-            tagSelect.remove(1);
-        }
+        // 清空现有选项
+        tagDropdown.innerHTML = '';
         
         // 获取所有标签
         const tags = storage.getTags();
         
         // 添加标签选项
         tags.forEach(tag => {
-            const option = document.createElement('option');
-            option.value = tag.name;
+            const option = document.createElement('div');
+            option.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
             option.textContent = tag.name;
-            tagSelect.appendChild(option);
+            option.addEventListener('click', () => {
+                document.getElementById('tag-input').value = tag.name;
+                tagDropdown.classList.add('hidden');
+            });
+            tagDropdown.appendChild(option);
         });
     }
 
@@ -533,6 +535,8 @@ class App {
             dropdown.classList.toggle('hidden');
             // 隐藏作者下拉菜单
             document.getElementById('book-author-dropdown').classList.add('hidden');
+            // 隐藏标签下拉菜单
+            document.getElementById('tag-dropdown').classList.add('hidden');
         });
 
         // 作者下拉按钮点击事件
@@ -543,16 +547,31 @@ class App {
             dropdown.classList.toggle('hidden');
             // 隐藏书名下拉菜单
             document.getElementById('book-title-dropdown').classList.add('hidden');
+            // 隐藏标签下拉菜单
+            document.getElementById('tag-dropdown').classList.add('hidden');
+        });
+
+        // 标签下拉按钮点击事件
+        document.getElementById('tag-dropdown-btn')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const dropdown = document.getElementById('tag-dropdown');
+            // 切换下拉菜单显示状态
+            dropdown.classList.toggle('hidden');
+            // 隐藏其他下拉菜单
+            document.getElementById('book-title-dropdown').classList.add('hidden');
+            document.getElementById('book-author-dropdown').classList.add('hidden');
         });
 
         // 点击页面其他区域时下拉菜单自动隐藏
         document.addEventListener('click', (e) => {
             // 检查点击是否在下拉菜单或下拉按钮之外
             if (!e.target.closest('#book-title-dropdown') && !e.target.closest('#book-title-dropdown-btn') &&
-                !e.target.closest('#book-author-dropdown') && !e.target.closest('#book-author-dropdown-btn')) {
+                !e.target.closest('#book-author-dropdown') && !e.target.closest('#book-author-dropdown-btn') &&
+                !e.target.closest('#tag-dropdown') && !e.target.closest('#tag-dropdown-btn')) {
                 // 隐藏所有下拉菜单
                 document.getElementById('book-title-dropdown').classList.add('hidden');
                 document.getElementById('book-author-dropdown').classList.add('hidden');
+                document.getElementById('tag-dropdown').classList.add('hidden');
             }
         });
 
@@ -1034,7 +1053,6 @@ class App {
         try {
             const title = document.getElementById('book-title').value.trim();
             const author = document.getElementById('book-author').value.trim();
-            const page = document.getElementById('book-page').value.trim();
             const content = document.getElementById('bookmark-content').value.trim();
             const note = document.getElementById('bookmark-note').value.trim();
             
@@ -1084,7 +1102,6 @@ class App {
             const bookmark = {
                 title,
                 author,
-                page,
                 content,
                 note,
                 tags
@@ -1122,7 +1139,6 @@ class App {
     resetCreateForm() {
         document.getElementById('book-title').value = '';
         document.getElementById('book-author').value = '';
-        document.getElementById('book-page').value = '';
         document.getElementById('bookmark-content').value = '';
         document.getElementById('bookmark-note').value = '';
         document.getElementById('tag-input-area').innerHTML = '';

@@ -30,7 +30,6 @@ class BookmarkManager {
         try {
             const title = document.getElementById('book-title').value.trim();
             const author = document.getElementById('book-author').value.trim();
-            const page = document.getElementById('book-page').value.trim();
             const content = document.getElementById('bookmark-content').value.trim();
             const note = document.getElementById('bookmark-note').value.trim();
             
@@ -84,7 +83,6 @@ class BookmarkManager {
             const bookmark = {
                 title,
                 author,
-                page,
                 content,
                 note,
                 tags,
@@ -130,7 +128,7 @@ class BookmarkManager {
     // 重置表单
     resetForm() {
         const formFields = [
-            'book-title', 'book-author', 'book-page', 
+            'book-title', 'book-author', 
             'bookmark-content', 'bookmark-note', 'tag-input', 'recognized-text'
         ];
         
@@ -191,7 +189,6 @@ class BookmarkManager {
             <p class="text-sm text-gray-500 mb-4">${bookmark.author}</p>
             <p class="text-sm mb-4">${bookmark.content}</p>
             <div class="flex justify-between items-center text-xs text-gray-500">
-                <span>第 ${bookmark.page} 页</span>
                 <span>${formattedDate}</span>
             </div>
             ${tagNames.length > 0 ? `<div class="mt-4 flex flex-wrap gap-2">${tagNames.map(name => `<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full">${name}</span>`).join('')}</div>` : ''}
@@ -232,7 +229,6 @@ class BookmarkManager {
         // 填充表单
         document.getElementById('book-title').value = bookmark.title;
         document.getElementById('book-author').value = bookmark.author;
-        document.getElementById('book-page').value = bookmark.page;
         document.getElementById('bookmark-content').value = bookmark.content;
         document.getElementById('bookmark-note').value = bookmark.note;
         
