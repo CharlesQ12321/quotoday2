@@ -128,7 +128,6 @@ class BookmarkManager {
     // 重置表单
     resetForm() {
         const formFields = [
-            'book-title', 'book-author', 
             'bookmark-content', 'bookmark-note', 'tag-input', 'recognized-text'
         ];
         
@@ -139,6 +138,17 @@ class BookmarkManager {
                 field.value = '';
             }
         });
+        
+        // 设置书名和作者的默认值
+        const bookTitle = document.getElementById('book-title');
+        if (bookTitle) {
+            bookTitle.value = '书名';
+        }
+        
+        const bookAuthor = document.getElementById('book-author');
+        if (bookAuthor) {
+            bookAuthor.value = '作者';
+        }
         
         // 清空标签输入区域
         const tagInputArea = document.getElementById('tag-input-area');
