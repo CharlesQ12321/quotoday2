@@ -1660,6 +1660,49 @@ class App {
             document.body.removeChild(viewContainer);
         });
 
+        // 添加滑动方向指示
+        const leftArrow = document.createElement('div');
+        leftArrow.className = 'absolute left-4 top-1/2 transform -translate-y-1/2 text-2xl opacity-30 cursor-pointer hover:opacity-100 transition-opacity';
+        leftArrow.style.color = styleNumber === '3' ? '#94A3B8' : '#6B7280';
+        leftArrow.innerHTML = '<i class="fa fa-angle-left"></i>';
+        
+        const rightArrow = document.createElement('div');
+        rightArrow.className = 'absolute right-4 top-1/2 transform -translate-y-1/2 text-2xl opacity-30 cursor-pointer hover:opacity-100 transition-opacity';
+        rightArrow.style.color = styleNumber === '3' ? '#94A3B8' : '#6B7280';
+        rightArrow.innerHTML = '<i class="fa fa-angle-right"></i>';
+
+        // 只有在有多个书签时才显示箭头
+        const bookmarks = storage.getBookmarks();
+        if (bookmarks.length > 1) {
+            viewContainer.appendChild(leftArrow);
+            viewContainer.appendChild(rightArrow);
+            
+            // 添加点击事件
+            leftArrow.addEventListener('click', () => {
+                const currentIndex = bookmarks.findIndex(b => b.id === id);
+                const prevIndex = currentIndex - 1;
+                if (prevIndex >= 0) {
+                    const prevBookmark = bookmarks[prevIndex];
+                    createNextBookmarkView(prevBookmark.id, viewContainer);
+                } else {
+                    // 在书签查看页面上显示提示
+                    showBookmarkToast(viewContainer, '已经是第一页');
+                }
+            });
+            
+            rightArrow.addEventListener('click', () => {
+                const currentIndex = bookmarks.findIndex(b => b.id === id);
+                const nextIndex = currentIndex + 1;
+                if (nextIndex < bookmarks.length) {
+                    const nextBookmark = bookmarks[nextIndex];
+                    createNextBookmarkView(nextBookmark.id, viewContainer);
+                } else {
+                    // 在书签查看页面上显示提示
+                    showBookmarkToast(viewContainer, '已经是最后一页');
+                }
+            });
+        }
+
         // 组装容器
         contentWrapper.appendChild(infoContainer);
         textContainer.appendChild(contentText);
@@ -1683,6 +1726,373 @@ class App {
             viewContainer.appendChild(viewStyleLink);
         }
 
+        // 添加触摸事件监听，实现左右滑动切换书签，支持拖动跟随
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let isDragging = false;
+        
+        viewContainer.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+            isDragging = true;
+            // 移除过渡效果，以便实时跟随拖动
+            viewContainer.style.transition = 'none';
+        });
+        
+        viewContainer.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            
+            const touchX = e.changedTouches[0].screenX;
+            const touchY = e.changedTouches[0].screenY;
+            
+            // 计算滑动距离
+            const deltaX = touchX - touchStartX;
+            const deltaY = touchY - touchStartY;
+            
+            // 只处理水平滑动
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                e.preventDefault(); // 防止页面滚动
+                // 实时更新页面位置，跟随拖动
+                viewContainer.style.transform = `translateX(${deltaX}px)`;
+            }
+        });
+        
+        viewContainer.addEventListener('touchend', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            
+            const touchEndX = e.changedTouches[0].screenX;
+            const deltaX = touchEndX - touchStartX;
+            const swipeThreshold = 50; // 滑动阈值
+            const bookmarks = storage.getBookmarks();
+            const currentIndex = bookmarks.findIndex(b => b.id === id);
+            
+            // 添加过渡效果
+            viewContainer.style.transition = 'transform 0.3s ease-out';
+            
+            if (deltaX < -swipeThreshold) {
+                // 左滑，切换到下一个书签
+                const nextIndex = currentIndex + 1;
+                if (nextIndex < bookmarks.length) {
+                    // 滑动到左侧
+                    viewContainer.style.transform = 'translateX(-100%)';
+                    setTimeout(() => {
+                        // 隐藏当前容器
+                        viewContainer.style.opacity = '0';
+                        // 创建并显示下一个书签
+                        const nextBookmark = bookmarks[nextIndex];
+                        createNextBookmarkView(nextBookmark.id, viewContainer);
+                    }, 300);
+                } else {
+                    // 回弹到原始位置
+                    viewContainer.style.transform = 'translateX(0)';
+                }
+            } else if (deltaX > swipeThreshold) {
+                // 右滑，切换到上一个书签
+                const prevIndex = currentIndex - 1;
+                if (prevIndex >= 0) {
+                    // 滑动到右侧
+                    viewContainer.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        // 隐藏当前容器
+                        viewContainer.style.opacity = '0';
+                        // 创建并显示上一个书签
+                        const prevBookmark = bookmarks[prevIndex];
+                        createNextBookmarkView(prevBookmark.id, viewContainer);
+                    }, 300);
+                } else {
+                    // 回弹到原始位置
+                    viewContainer.style.transform = 'translateX(0)';
+                }
+            } else {
+                // 滑动距离不足，回弹到原始位置
+                viewContainer.style.transform = 'translateX(0)';
+            }
+        });
+        
+        // 初始化书签视图（添加事件监听等）
+        function initBookmarkView(container, bookmarkId) {
+            // 重新添加触摸事件监听，实现左右滑动切换书签，支持拖动跟随
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let isDragging = false;
+            
+            container.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+                touchStartY = e.changedTouches[0].screenY;
+                isDragging = true;
+                // 移除过渡效果，以便实时跟随拖动
+                container.style.transition = 'none';
+            });
+            
+            container.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                
+                const touchX = e.changedTouches[0].screenX;
+                const touchY = e.changedTouches[0].screenY;
+                
+                // 计算滑动距离
+                const deltaX = touchX - touchStartX;
+                const deltaY = touchY - touchStartY;
+                
+                // 只处理水平滑动
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                    e.preventDefault(); // 防止页面滚动
+                    // 实时更新页面位置，跟随拖动
+                    container.style.transform = `translateX(${deltaX}px)`;
+                }
+            });
+            
+            container.addEventListener('touchend', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                
+                const touchEndX = e.changedTouches[0].screenX;
+                const deltaX = touchEndX - touchStartX;
+                const swipeThreshold = 50; // 滑动阈值
+                const bookmarks = storage.getBookmarks();
+                const currentIndex = bookmarks.findIndex(b => b.id === bookmarkId);
+                
+                // 添加过渡效果
+                container.style.transition = 'transform 0.3s ease-out';
+                
+                if (deltaX < -swipeThreshold) {
+                    // 左滑，切换到下一个书签
+                    const nextIndex = currentIndex + 1;
+                    if (nextIndex < bookmarks.length) {
+                        // 滑动到左侧
+                        container.style.transform = 'translateX(-100%)';
+                        setTimeout(() => {
+                            // 隐藏当前容器
+                            container.style.opacity = '0';
+                            // 创建并显示下一个书签
+                            const nextBookmark = bookmarks[nextIndex];
+                            createNextBookmarkView(nextBookmark.id, container);
+                        }, 300);
+                    } else {
+                        // 回弹到原始位置
+                        container.style.transform = 'translateX(0)';
+                    }
+                } else if (deltaX > swipeThreshold) {
+                    // 右滑，切换到上一个书签
+                    const prevIndex = currentIndex - 1;
+                    if (prevIndex >= 0) {
+                        // 滑动到右侧
+                        container.style.transform = 'translateX(100%)';
+                        setTimeout(() => {
+                            // 隐藏当前容器
+                            container.style.opacity = '0';
+                            // 创建并显示上一个书签
+                            const prevBookmark = bookmarks[prevIndex];
+                            createNextBookmarkView(prevBookmark.id, container);
+                        }, 300);
+                    } else {
+                        // 回弹到原始位置
+                        container.style.transform = 'translateX(0)';
+                    }
+                } else {
+                    // 滑动距离不足，回弹到原始位置
+                    container.style.transform = 'translateX(0)';
+                }
+            });
+            
+            // 为新容器添加关闭按钮
+            const closeButton = document.createElement('button');
+            closeButton.className = 'absolute top-6 right-6 text-3xl';
+            closeButton.style.color = styleNumber === '3' ? '#94A3B8' : '#6B7280';
+            closeButton.innerHTML = '&times;';
+            closeButton.addEventListener('click', (e) => {
+                e.stopPropagation(); // 阻止事件冒泡
+                document.body.removeChild(container);
+            });
+            container.appendChild(closeButton);
+            
+            // 添加滑动方向指示
+            const leftArrow = document.createElement('div');
+            leftArrow.className = 'absolute left-4 top-1/2 transform -translate-y-1/2 text-2xl opacity-30 cursor-pointer hover:opacity-100 transition-opacity';
+            leftArrow.style.color = styleNumber === '3' ? '#94A3B8' : '#6B7280';
+            leftArrow.innerHTML = '<i class="fa fa-angle-left"></i>';
+            
+            const rightArrow = document.createElement('div');
+            rightArrow.className = 'absolute right-4 top-1/2 transform -translate-y-1/2 text-2xl opacity-30 cursor-pointer hover:opacity-100 transition-opacity';
+            rightArrow.style.color = styleNumber === '3' ? '#94A3B8' : '#6B7280';
+            rightArrow.innerHTML = '<i class="fa fa-angle-right"></i>';
+            
+            // 只有在有多个书签时才显示箭头
+            const bookmarks = storage.getBookmarks();
+            if (bookmarks.length > 1) {
+                container.appendChild(leftArrow);
+                container.appendChild(rightArrow);
+                
+                // 添加点击事件
+                leftArrow.addEventListener('click', (e) => {
+                    e.stopPropagation(); // 阻止事件冒泡
+                    const currentIndex = bookmarks.findIndex(b => b.id === bookmarkId);
+                    const prevIndex = currentIndex - 1;
+                    if (prevIndex >= 0) {
+                        const prevBookmark = bookmarks[prevIndex];
+                        createNextBookmarkView(prevBookmark.id, container);
+                    } else {
+                        // 在书签查看页面上显示提示
+                        showBookmarkToast(container, '已经是第一页');
+                    }
+                });
+                
+                rightArrow.addEventListener('click', (e) => {
+                    e.stopPropagation(); // 阻止事件冒泡
+                    const currentIndex = bookmarks.findIndex(b => b.id === bookmarkId);
+                    const nextIndex = currentIndex + 1;
+                    if (nextIndex < bookmarks.length) {
+                        const nextBookmark = bookmarks[nextIndex];
+                        createNextBookmarkView(nextBookmark.id, container);
+                    } else {
+                        // 在书签查看页面上显示提示
+                        showBookmarkToast(container, '已经是最后一页');
+                    }
+                });
+            }
+            
+            // 添加点击背景关闭功能
+            container.addEventListener('click', (e) => {
+                if (e.target === container) {
+                    document.body.removeChild(container);
+                    // 导航回首页
+                    app.navigateTo('home-page');
+                }
+            });
+        }
+        
+        // 在书签查看页面上显示提示信息
+        function showBookmarkToast(container, message) {
+            // 创建提示元素
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-1/4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity duration-300';
+            toast.style.backgroundColor = styleNumber === '3' ? '#EF4444' : '#F87171';
+            toast.style.color = '#FFFFFF';
+            toast.style.fontSize = '14px';
+            toast.style.fontWeight = '500';
+            toast.style.opacity = '0';
+            toast.style.zIndex = '60'; // 确保提示在书签查看页面之上
+            toast.textContent = message;
+            
+            // 添加到容器中
+            container.appendChild(toast);
+            
+            // 显示提示
+            setTimeout(() => {
+                toast.style.opacity = '1';
+            }, 10);
+            
+            // 2秒后隐藏提示
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 2000);
+        }
+        
+        // 创建并显示下一个书签视图
+        function createNextBookmarkView(bookmarkId, currentContainer) {
+            // 创建新的书签查看容器
+            const nextViewContainer = document.createElement('div');
+            nextViewContainer.className = 'fixed inset-0 flex items-center justify-center z-50';
+            nextViewContainer.id = 'bookmark-view-container';
+            nextViewContainer.style.backgroundColor = backgroundColor;
+            nextViewContainer.style.opacity = '0';
+            nextViewContainer.style.transform = 'translateX(100%)';
+            nextViewContainer.style.transition = 'all 0.3s ease-out';
+            
+            // 复制当前书签卡片的结构，用于快速显示
+            const nextContentContainer = contentContainer.cloneNode(true);
+            const nextBookmarkCard = bookmarkCard.cloneNode(true);
+            
+            // 获取下一个书签数据
+            const nextBookmark = storage.getBookmark(bookmarkId);
+            if (!nextBookmark) return;
+            
+            // 更新书签数据
+            updateBookmarkView(nextBookmarkCard, nextBookmark);
+            
+            // 组装容器
+            nextContentContainer.innerHTML = '';
+            nextContentContainer.appendChild(nextBookmarkCard);
+            nextViewContainer.appendChild(nextContentContainer);
+            
+            // 添加到文档
+            document.body.appendChild(nextViewContainer);
+            
+            // 触发重排，然后执行动画
+            setTimeout(() => {
+                nextViewContainer.style.opacity = '1';
+                nextViewContainer.style.transform = 'translateX(0)';
+                
+                // 动画结束后，移除旧容器并重新初始化新容器
+                setTimeout(() => {
+                    if (currentContainer && currentContainer.parentNode) {
+                        document.body.removeChild(currentContainer);
+                    }
+                    // 重新初始化新容器的事件监听等
+                    initBookmarkView(nextViewContainer, bookmarkId);
+                }, 300);
+            }, 50);
+        }
+        
+        // 更新书签视图数据
+        function updateBookmarkView(card, bookmark) {
+            // 格式化日期
+            const date = new Date(bookmark.created_at);
+            const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            
+            // 获取标签名称
+            const tagNames = bookmark.tags.map(tagId => {
+                const tag = storage.getTag(tagId);
+                return tag ? tag.name : '';
+            }).filter(Boolean);
+            
+            // 更新标题和作者
+            const infoContainer = card.querySelector('.flex.justify-between.items-start');
+            if (infoContainer) {
+                const titleEl = infoContainer.querySelector('h3');
+                const authorEl = infoContainer.querySelector('span');
+                if (titleEl) titleEl.textContent = bookmark.title;
+                if (authorEl) authorEl.textContent = bookmark.author;
+            }
+            
+            // 更新内容
+            const textContainer = card.querySelector('.py-6');
+            if (textContainer) {
+                const contentText = textContainer.querySelector('.text-sm');
+                if (contentText) contentText.textContent = bookmark.content;
+            }
+            
+            // 更新标签和日期
+            const metaContainer = card.querySelector('.flex.justify-between.items-center');
+            if (metaContainer) {
+                const tagsContainer = metaContainer.querySelector('.flex.flex-wrap');
+                const dateContainer = metaContainer.querySelector('.text-xs');
+                
+                if (tagsContainer) {
+                    tagsContainer.innerHTML = '';
+                    tagNames.forEach(name => {
+                        const tagEl = document.createElement('span');
+                        tagEl.className = 'text-xs px-2 py-0.5';
+                        tagEl.style.color = styleNumber === '3' ? '#94A3B8' : '#6B7280';
+                        tagEl.textContent = name;
+                        tagsContainer.appendChild(tagEl);
+                    });
+                }
+                
+                if (dateContainer) {
+                    dateContainer.textContent = formattedDate;
+                }
+            }
+        }
+        
+
+
         // 添加到文档
         document.body.appendChild(viewContainer);
 
@@ -1690,6 +2100,8 @@ class App {
         viewContainer.addEventListener('click', (e) => {
             if (e.target === viewContainer) {
                 document.body.removeChild(viewContainer);
+                // 导航回首页
+                app.navigateTo('home-page');
             }
         });
     }
