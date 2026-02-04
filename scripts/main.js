@@ -683,15 +683,15 @@ class App {
                     <span class="text-xs text-gray-500">${formattedDate}</span>
                 </div>
                 <div class="bookmark-actions hidden grid grid-cols-3 gap-2 mb-2">
-                    <button class="action-btn view-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                    <button class="action-btn view-btn flex flex-col items-center justify-center p-2" data-id="${bookmark.id}">
                         <i class="fa fa-eye text-gray-500 mb-1"></i>
                         <span class="text-xs text-gray-500">查看</span>
                     </button>
-                    <button class="action-btn edit-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                    <button class="action-btn edit-btn flex flex-col items-center justify-center p-2" data-id="${bookmark.id}">
                         <i class="fa fa-edit text-gray-500 mb-1"></i>
                         <span class="text-xs text-gray-500">编辑</span>
                     </button>
-                    <button class="action-btn delete-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                    <button class="action-btn delete-btn flex flex-col items-center justify-center p-2" data-id="${bookmark.id}">
                         <i class="fa fa-trash text-gray-500 mb-1"></i>
                         <span class="text-xs text-gray-500">删除</span>
                     </button>
@@ -789,10 +789,10 @@ class App {
                 </div>
                 <div class="flex items-center">
                     <span class="text-xs text-gray-500 mr-4">使用 ${tag.count} 次</span>
-                    <button class="text-gray-400 mr-2 edit-tag" data-id="${tag.id}">
+                    <button class="btn-icon mr-2 edit-tag" data-id="${tag.id}">
                         <i class="fa fa-edit"></i>
                     </button>
-                    <button class="text-gray-400 delete-tag" data-id="${tag.id}">
+                    <button class="btn-icon delete-tag" data-id="${tag.id}">
                         <i class="fa fa-trash"></i>
                     </button>
                 </div>
@@ -898,15 +898,15 @@ class App {
         // 添加菜单项
         menu.innerHTML = `
             <button class="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center menu-share" data-id="${id}">
-                <i class="fa fa-share-alt mr-2"></i>
+                <i class="fa fa-share-alt mr-2 text-gray-500"></i>
                 <span>分享</span>
             </button>
             <button class="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center menu-edit" data-id="${id}">
-                <i class="fa fa-edit mr-2"></i>
+                <i class="fa fa-edit mr-2 text-gray-500"></i>
                 <span>编辑</span>
             </button>
             <button class="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center menu-delete" data-id="${id}">
-                <i class="fa fa-trash mr-2"></i>
+                <i class="fa fa-trash mr-2 text-gray-500"></i>
                 <span>删除</span>
             </button>
         `;
@@ -1044,8 +1044,8 @@ class App {
         tagEl.className = 'tag flex items-center bg-blue-100 text-blue-800 rounded-full px-3 py-1 text-sm';
         tagEl.innerHTML = `
             ${tagName}
-            <button class="ml-2 text-blue-800 remove-tag">
-                <i class="fa fa-times"></i>
+            <button class="btn-icon ml-2 remove-tag" style="padding: 2px;">
+                <i class="fa fa-times text-blue-800"></i>
             </button>
         `;
         
@@ -1311,21 +1311,21 @@ class App {
                     <span class="text-xs text-gray-500">${formattedDate}</span>
                 </div>
                 <div class="bookmark-actions hidden grid grid-cols-3 gap-2 mb-2">
-                    <button class="action-btn view-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                    <button class="action-btn view-btn flex flex-col items-center justify-center p-2" data-id="${bookmark.id}">
                         <i class="fa fa-eye text-gray-500 mb-1"></i>
                         <span class="text-xs text-gray-500">查看</span>
                     </button>
-                    <button class="action-btn edit-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                    <button class="action-btn edit-btn flex flex-col items-center justify-center p-2" data-id="${bookmark.id}">
                         <i class="fa fa-edit text-gray-500 mb-1"></i>
                         <span class="text-xs text-gray-500">编辑</span>
                     </button>
-                    <button class="action-btn delete-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                    <button class="action-btn delete-btn flex flex-col items-center justify-center p-2" data-id="${bookmark.id}">
                         <i class="fa fa-trash text-gray-500 mb-1"></i>
                         <span class="text-xs text-gray-500">删除</span>
                     </button>
                 </div>
             `;
-            
+
             bookmarkList.appendChild(bookmarkEl);
 
             // 为书签项添加点击展开/收起功能
@@ -1334,7 +1334,7 @@ class App {
                 if (!e.target.closest('.action-btn')) {
                     const contentEl = bookmarkEl.querySelector('.bookmark-content');
                     const actionsEl = bookmarkEl.querySelector('.bookmark-actions');
-                    
+
                     // 先关闭所有其他书签的展开状态
                     document.querySelectorAll('.bookmark-item').forEach(item => {
                         if (item !== bookmarkEl) {
@@ -1344,7 +1344,7 @@ class App {
                             if (itemActions) itemActions.classList.add('hidden');
                         }
                     });
-                    
+
                     // 切换当前书签的展开状态
                     if (contentEl) {
                         contentEl.classList.toggle('expanded');

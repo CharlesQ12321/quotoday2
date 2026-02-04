@@ -81,6 +81,21 @@ button:active {
     padding: 12px 16px;
     font-weight: 500;
     font-family: 'Georgia', 'Cambria', serif;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(153, 27, 27, 0.2);
+}
+
+.btn-primary:hover {
+    background-color: #7F1D1D;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(153, 27, 27, 0.3);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(153, 27, 27, 0.2);
 }
 
 /* 次要按钮 */
@@ -92,6 +107,230 @@ button:active {
     font-weight: 500;
     font-family: 'Georgia', 'Cambria', serif;
     border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #FDE68A;
+    border-color: #FCD34D;
+    transform: translateY(-2px);
+}
+
+.btn-secondary:active {
+    transform: translateY(0);
+}
+
+/* 危险按钮 */
+.btn-danger {
+    background-color: #DC2626;
+    color: white;
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-weight: 500;
+    font-family: 'Georgia', 'Cambria', serif;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
+}
+
+.btn-danger:hover {
+    background-color: #B91C1C;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+}
+
+.btn-danger:active {
+    transform: translateY(0);
+}
+
+/* 幽灵按钮 */
+.btn-ghost {
+    background-color: transparent;
+    color: var(--text-secondary);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-weight: 500;
+    font-family: 'Georgia', 'Cambria', serif;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-ghost:hover {
+    background-color: var(--secondary-color);
+    color: var(--text-primary);
+    border-color: var(--accent-color);
+}
+
+.btn-ghost:active {
+    transform: scale(0.98);
+}
+
+/* 图标按钮 */
+.btn-icon {
+    background-color: transparent;
+    color: var(--text-secondary);
+    border-radius: 6px;
+    padding: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon:hover {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+}
+
+.btn-icon:active {
+    transform: scale(0.95);
+}
+
+/* 操作按钮（用于书签项等） */
+.action-btn {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Georgia', 'Cambria', serif;
+}
+
+.action-btn:hover {
+    background-color: var(--secondary-color);
+    border-color: var(--accent-color);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.action-btn:active {
+    transform: translateY(0);
+}
+
+/* 导航按钮 */
+.nav-btn {
+    background-color: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 6px;
+    font-family: 'Georgia', 'Cambria', serif;
+}
+
+.nav-btn:hover {
+    color: var(--primary-color);
+    background-color: rgba(153, 27, 27, 0.05);
+}
+
+.nav-btn.active {
+    color: var(--primary-color);
+    background-color: rgba(153, 27, 27, 0.1);
+}
+
+/* 下拉按钮 */
+.dropdown-btn {
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 0 6px 6px 0;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-secondary);
+}
+
+.dropdown-btn:hover {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+    border-color: var(--accent-color);
+}
+
+/* 搜索按钮 */
+.search-btn {
+    background-color: var(--secondary-color);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 9999px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-family: 'Georgia', 'Cambria', serif;
+}
+
+.search-btn:hover {
+    background-color: #FDE68A;
+    border-color: #FCD34D;
+}
+
+/* 标签按钮 */
+.tag-btn {
+    background-color: rgba(180, 83, 9, 0.1);
+    color: var(--accent-color);
+    border: none;
+    border-radius: 9999px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: 'Georgia', 'Cambria', serif;
+}
+
+.tag-btn:hover {
+    background-color: rgba(180, 83, 9, 0.2);
+}
+
+/* 样式选择按钮 */
+.style-btn {
+    background-color: var(--background-color);
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.style-btn:hover {
+    border-color: var(--primary-color);
+}
+
+.style-btn.active {
+    border-color: var(--primary-color);
+    background-color: rgba(153, 27, 27, 0.05);
+}
+
+/* 模态框按钮 */
+.modal-btn {
+    background-color: var(--secondary-color);
+    color: var(--text-primary);
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-family: 'Georgia', 'Cambria', serif;
+}
+
+.modal-btn:hover {
+    background-color: #FDE68A;
+}
+
+.modal-btn.primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.modal-btn.primary:hover {
+    background-color: #7F1D1D;
 }
 
 /* 输入框样式 */

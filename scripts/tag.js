@@ -265,10 +265,10 @@ class TagManager {
                 </div>
                 <div class="flex items-center">
                     <span class="text-xs text-gray-500 mr-4">使用 ${tag.count} 次</span>
-                    <button class="text-gray-400 mr-2 edit-tag" data-id="${tag.id}">
+                    <button class="btn-icon mr-2 edit-tag" data-id="${tag.id}">
                         <i class="fa fa-edit"></i>
                     </button>
-                    <button class="text-gray-400 delete-tag" data-id="${tag.id}">
+                    <button class="btn-icon delete-tag" data-id="${tag.id}">
                         <i class="fa fa-trash"></i>
                     </button>
                 </div>

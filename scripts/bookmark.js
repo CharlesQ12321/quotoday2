@@ -360,21 +360,21 @@ class BookmarkManager {
                     <span class="text-xs text-gray-500">${formattedDate}</span>
                 </div>
                 <div class="bookmark-actions hidden grid grid-cols-3 gap-2 mb-2">
-                    <button class="action-btn share-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                    <button class="action-btn share-btn flex flex-col items-center justify-center p-2" data-id="${bookmark.id}">
                         <i class="fa fa-share-alt text-gray-500 mb-1"></i>
                         <span class="text-xs text-gray-500">分享</span>
                     </button>
-                    <button class="action-btn edit-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                    <button class="action-btn edit-btn flex flex-col items-center justify-center p-2" data-id="${bookmark.id}">
                         <i class="fa fa-edit text-gray-500 mb-1"></i>
                         <span class="text-xs text-gray-500">编辑</span>
                     </button>
-                    <button class="action-btn delete-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                    <button class="action-btn delete-btn flex flex-col items-center justify-center p-2" data-id="${bookmark.id}">
                         <i class="fa fa-trash text-gray-500 mb-1"></i>
                         <span class="text-xs text-gray-500">删除</span>
                     </button>
                 </div>
             `;
-            
+
             bookmarkList.appendChild(bookmarkEl);
 
             // 为书签项添加点击展开/收起功能
@@ -484,21 +484,21 @@ class BookmarkManager {
                     <span class="text-xs text-gray-500">${formattedDate}</span>
                 </div>
                 <div class="bookmark-actions hidden grid grid-cols-3 gap-2 mb-2">
-                    <button class="action-btn share-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                    <button class="action-btn share-btn flex flex-col items-center justify-center p-2" data-id="${bookmark.id}">
                         <i class="fa fa-share-alt text-gray-500 mb-1"></i>
                         <span class="text-xs text-gray-500">分享</span>
                     </button>
-                    <button class="action-btn edit-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                    <button class="action-btn edit-btn flex flex-col items-center justify-center p-2" data-id="${bookmark.id}">
                         <i class="fa fa-edit text-gray-500 mb-1"></i>
                         <span class="text-xs text-gray-500">编辑</span>
                     </button>
-                    <button class="action-btn delete-btn flex flex-col items-center justify-center p-2 border border-gray-200 rounded-lg" data-id="${bookmark.id}">
+                    <button class="action-btn delete-btn flex flex-col items-center justify-center p-2" data-id="${bookmark.id}">
                         <i class="fa fa-trash text-gray-500 mb-1"></i>
                         <span class="text-xs text-gray-500">删除</span>
                     </button>
                 </div>
             `;
-            
+
             bookmarkList.appendChild(bookmarkEl);
 
             // 为书签项添加点击展开/收起功能

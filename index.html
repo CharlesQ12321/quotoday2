@@ -206,10 +206,10 @@
                         <div class="relative flex items-center space-x-2">
                             <input type="text" id="search-input" placeholder="搜索书签、作者、标签..."
                                 class="flex-1 px-4 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary">
-                            <button id="search-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm hover:bg-gray-300 transition-colors whitespace-nowrap">
+                            <button id="search-btn" class="search-btn whitespace-nowrap">
                                 搜索
                             </button>
-                            <button id="reset-filters-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm hover:bg-gray-300 transition-colors whitespace-nowrap">
+                            <button id="reset-filters-btn" class="btn-secondary whitespace-nowrap">
                                 重置
                             </button>
                         </div>
@@ -292,7 +292,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">上传图片</label>
                         <div id="image-upload-area" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50 flex items-center justify-center">
                             <input type="file" id="image-input" accept="image/*" capture="camera" class="hidden">
-                            <button id="upload-btn" class="flex flex-col items-center justify-center w-full">
+                            <button id="upload-btn" class="btn-ghost flex flex-col items-center justify-center w-full">
                                 <i class="fa fa-camera text-4xl text-gray-400 mb-2"></i>
                                 <span class="text-sm text-gray-500">点击拍照或上传图片</span>
                             </button>
@@ -306,7 +306,7 @@
                             <div id="crop-area" class="absolute border-2 border-dashed border-primary rounded cursor-move">
                                 <!-- 调整手柄会通过JavaScript添加 -->
                             </div>
-                            <button id="reselect-img" class="absolute top-2 right-2 bg-white rounded-full p-2 shadow-md text-gray-600 hover:bg-gray-100 transition-colors">
+                            <button id="reselect-img" class="btn-icon absolute top-2 right-2 shadow-md">
                                 <i class="fa fa-times"></i>
                             </button>
                             <div id="rotation-indicator" class="absolute top-2 left-2 bg-white rounded-full p-2 shadow-md text-gray-600 text-xs font-medium">
@@ -314,10 +314,10 @@
                             </div>
                         </div>
                         <div class="flex justify-between mt-2">
-                            <button id="crop-btn" class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-blue-600 transition-colors">
+                            <button id="crop-btn" class="btn-primary text-sm">
                                 确认区域
                             </button>
-                            <button id="rotate-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300 transition-colors">
+                            <button id="rotate-btn" class="btn-secondary text-sm">
                                 <i class="fa fa-rotate-right mr-1"></i> 旋转
                             </button>
                         </div>
@@ -330,7 +330,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">书名 <span class="text-red-500">*</span></label>
                             <div class="relative">
                                 <input type="text" id="book-title" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary pr-10" value="书名">
-                                <button id="book-title-dropdown-btn" class="absolute right-0 top-0 h-full px-3 flex items-center justify-center text-gray-500 border-l border-gray-300 rounded-r-lg hover:bg-gray-50">
+                                <button id="book-title-dropdown-btn" class="dropdown-btn absolute right-0 top-0 h-full px-3 flex items-center justify-center">
                                     <i class="fa fa-chevron-down"></i>
                                 </button>
                                 <div id="book-title-dropdown" class="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-20 hidden max-h-40 overflow-y-auto">
@@ -342,7 +342,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">作者 <span class="text-red-500">*</span></label>
                             <div class="relative">
                                 <input type="text" id="book-author" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary pr-10" value="作者">
-                                <button id="book-author-dropdown-btn" class="absolute right-0 top-0 h-full px-3 flex items-center justify-center text-gray-500 border-l border-gray-300 rounded-r-lg hover:bg-gray-50">
+                                <button id="book-author-dropdown-btn" class="dropdown-btn absolute right-0 top-0 h-full px-3 flex items-center justify-center">
                                     <i class="fa fa-chevron-down"></i>
                                 </button>
                                 <div id="book-author-dropdown" class="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-20 hidden max-h-40 overflow-y-auto">
@@ -375,14 +375,14 @@
                             <div class="flex gap-2">
                                 <div class="flex-1 relative">
                                     <input type="text" id="tag-input" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary pr-10" placeholder="输入或选择标签">
-                                    <button id="tag-dropdown-btn" class="absolute right-0 top-0 h-full px-3 flex items-center justify-center text-gray-500 border-l border-gray-300 rounded-r-lg hover:bg-gray-50">
+                                    <button id="tag-dropdown-btn" class="dropdown-btn absolute right-0 top-0 h-full px-3 flex items-center justify-center">
                                         <i class="fa fa-chevron-down"></i>
                                     </button>
                                     <div id="tag-dropdown" class="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-20 hidden max-h-40 overflow-y-auto">
                                         <!-- 标签选项将通过JavaScript加载 -->
                                     </div>
                                 </div>
-                                <button id="add-tag-btn" class="w-1/4 px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-blue-600 transition-colors flex items-center justify-center">
+                                <button id="add-tag-btn" class="btn-primary w-1/4 text-sm flex items-center justify-center">
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
@@ -390,7 +390,7 @@
                     </div>
                     
                     <!-- 保存按钮 -->
-                    <button id="save-bookmark" class="w-full py-3 bg-primary text-white rounded-lg font-medium btn-hover">
+                    <button id="save-bookmark" class="btn-primary w-full py-3 font-medium">
                         保存书签
                     </button>
                 </div>
@@ -403,7 +403,7 @@
                 <div class="p-4">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center">
-                            <button id="back-from-detail" class="p-2 text-gray-500">
+                            <button id="back-from-detail" class="btn-icon">
                                 <i class="fa fa-arrow-left"></i>
                             </button>
                             <h1 class="text-2xl font-bold ml-2">书签详情</h1>
@@ -425,11 +425,11 @@
                     
                     <!-- 操作按钮 -->
                     <div class="grid grid-cols-2 gap-4 mb-6">
-                        <button class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg">
+                        <button class="action-btn flex flex-col items-center justify-center p-4">
                             <i class="fa fa-edit text-gray-500 mb-1"></i>
                             <span class="text-xs text-gray-500">编辑</span>
                         </button>
-                        <button class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg">
+                        <button class="action-btn flex flex-col items-center justify-center p-4">
                             <i class="fa fa-trash text-gray-500 mb-1"></i>
                             <span class="text-xs text-gray-500">删除</span>
                         </button>
@@ -460,7 +460,7 @@
                 <div class="p-4">
                     <div class="flex items-center justify-between mb-4">
                         <h1 class="text-2xl font-bold">标签管理</h1>
-                        <button id="add-tag-modal-btn" class="p-2 text-primary">
+                        <button id="add-tag-modal-btn" class="btn-icon text-primary">
                             <i class="fa fa-plus"></i>
                         </button>
                     </div>
@@ -518,15 +518,15 @@
                         <div>
                             <h2 class="text-sm font-medium text-gray-700 mb-3">UI风格</h2>
                             <div class="grid grid-cols-3 gap-3">
-                                <button class="style-btn flex flex-col items-center p-3 border-2 border-primary rounded-lg">
+                                <button class="style-btn flex flex-col items-center p-3 active">
                                     <div class="w-full h-16 bg-gray-100 rounded mb-2"></div>
                                     <span class="text-xs font-medium">简约</span>
                                 </button>
-                                <button class="style-btn flex flex-col items-center p-3 border-2 border-gray-300 rounded-lg">
+                                <button class="style-btn flex flex-col items-center p-3">
                                     <div class="w-full h-16 bg-amber-50 rounded mb-2"></div>
                                     <span class="text-xs font-medium">文艺</span>
                                 </button>
-                                <button class="style-btn flex flex-col items-center p-3 border-2 border-gray-300 rounded-lg">
+                                <button class="style-btn flex flex-col items-center p-3">
                                     <div class="w-full h-16 bg-gray-900 rounded mb-2"></div>
                                     <span class="text-xs font-medium">暗黑</span>
                                 </button>
@@ -537,17 +537,17 @@
                         <div>
                             <h2 class="text-sm font-medium text-gray-700 mb-3">数据管理</h2>
                             <div class="space-y-2">
-                                <button class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <button class="btn-secondary w-full flex items-center justify-between">
                                     <span class="text-gray-700">导出数据</span>
                                     <i class="fa fa-arrow-right text-gray-400"></i>
                                 </button>
-                                <button class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <button class="btn-secondary w-full flex items-center justify-between">
                                     <span class="text-gray-700">导入数据</span>
                                     <i class="fa fa-arrow-right text-gray-400"></i>
                                 </button>
-                                <button class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                    <span class="text-gray-700">清除数据</span>
-                                    <i class="fa fa-arrow-right text-gray-400"></i>
+                                <button class="btn-danger w-full flex items-center justify-between">
+                                    <span>清除数据</span>
+                                    <i class="fa fa-arrow-right"></i>
                                 </button>
                             </div>
                         </div>
@@ -575,19 +575,19 @@
     
     <!-- 底部导航栏 -->
     <div class="fixed bottom-0 left-0 right-0 flex items-center justify-around bg-white border-t border-gray-200 shadow-md z-100 h-20">
-        <button class="nav-btn flex flex-col items-center justify-center active text-primary" data-page="home-page">
+        <button class="nav-btn flex flex-col items-center justify-center active" data-page="home-page">
             <i class="fa fa-home text-xl"></i>
             <span class="text-xs mt-1">首页</span>
         </button>
-        <button class="nav-btn flex flex-col items-center justify-center text-gray-500" data-page="create-page">
+        <button class="nav-btn flex flex-col items-center justify-center" data-page="create-page">
             <i class="fa fa-plus-circle text-xl"></i>
             <span class="text-xs mt-1">创建</span>
         </button>
-        <button class="nav-btn flex flex-col items-center justify-center text-gray-500" data-page="tag-page">
+        <button class="nav-btn flex flex-col items-center justify-center" data-page="tag-page">
             <i class="fa fa-tags text-xl"></i>
             <span class="text-xs mt-1">标签</span>
         </button>
-        <button class="nav-btn flex flex-col items-center justify-center text-gray-500" data-page="settings-page">
+        <button class="nav-btn flex flex-col items-center justify-center" data-page="settings-page">
             <i class="fa fa-cog text-xl"></i>
             <span class="text-xs mt-1">设置</span>
         </button>
@@ -602,10 +602,10 @@
                 <input type="text" id="new-tag-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
             </div>
             <div class="flex justify-end space-x-3">
-                <button id="cancel-add-tag" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm">
+                <button id="cancel-add-tag" class="modal-btn">
                     取消
                 </button>
-                <button id="confirm-add-tag" class="px-4 py-2 bg-primary text-white rounded-lg text-sm">
+                <button id="confirm-add-tag" class="modal-btn primary">
                     确定
                 </button>
             </div>
@@ -622,10 +622,10 @@
                 <input type="text" id="edit-tag-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
             </div>
             <div class="flex justify-end space-x-3">
-                <button id="cancel-edit-tag" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm">
+                <button id="cancel-edit-tag" class="modal-btn">
                     取消
                 </button>
-                <button id="confirm-edit-tag" class="px-4 py-2 bg-primary text-white rounded-lg text-sm">
+                <button id="confirm-edit-tag" class="modal-btn primary">
                     确定
                 </button>
             </div>
