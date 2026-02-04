@@ -1158,6 +1158,13 @@ class App {
         const styleLink = document.getElementById('current-style');
         styleLink.href = `styles/style${styleNumber}.css`;
         
+        // 处理暗黑模式
+        if (styleNumber === 3) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+        
         // 保存样式设置
         storage.saveSettings({ style: styleNumber.toString() });
         
@@ -1210,6 +1217,13 @@ class App {
         
         const styleLink = document.getElementById('current-style');
         styleLink.href = `styles/style${styleNumber}.css`;
+        
+        // 处理暗黑模式
+        if (parseInt(styleNumber) === 3) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
         
         // 更新样式选择按钮
         document.querySelectorAll('.style-btn').forEach((btn, index) => {

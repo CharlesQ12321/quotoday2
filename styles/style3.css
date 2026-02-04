@@ -1,0 +1,540 @@
+/* 暗色系样式 */
+
+/* 背景颜色 */
+body.dark-mode {
+    background-color: #121212;
+}
+
+body.dark-mode .bg-gray-100 {
+    background-color: #1E1E1E;
+}
+
+body.dark-mode .bg-gray-50 {
+    background-color: #2D2D2D;
+}
+
+body.dark-mode .bg-white {
+    background-color: #1E1E1E;
+}
+
+/* 文本颜色 */
+body.dark-mode {
+    color: #E0E0E0;
+}
+
+body.dark-mode .text-gray-700 {
+    color: #E0E0E0;
+}
+
+body.dark-mode .text-gray-600 {
+    color: #B0B0B0;
+}
+
+body.dark-mode .text-gray-500 {
+    color: #909090;
+}
+
+body.dark-mode .text-gray-400 {
+    color: #B0B0B0;
+}
+
+body.dark-mode .text-gray-300 {
+    color: #D0D0D0;
+}
+
+body.dark-mode .text-gray-200 {
+    color: #E0E0E0;
+}
+
+/* 标题文字 */
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6 {
+    color: #FFFFFF;
+}
+
+/* 加粗文字 */
+body.dark-mode .font-bold,
+body.dark-mode .font-semibold {
+    color: #FFFFFF;
+}
+
+/* 中等粗细文字 */
+body.dark-mode .font-medium {
+    color: #E0E0E0;
+}
+
+/* 导航栏文字 */
+body.dark-mode .nav-btn span {
+    color: #E0E0E0;
+}
+
+/* 表单标签 */
+body.dark-mode label {
+    color: #E0E0E0;
+}
+
+/* 按钮文字 */
+body.dark-mode button:not(.bg-primary) {
+    color: #E0E0E0;
+}
+
+/* 链接文字 */
+body.dark-mode a {
+    color: #60A5FA;
+}
+
+/* 输入框文字 */
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+    color: #E0E0E0;
+}
+
+/* 占位符文字 */
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+    color: #909090;
+}
+
+/* 标签文字 */
+body.dark-mode .bg-blue-100 {
+    color: #60A5FA;
+}
+
+body.dark-mode .bg-purple-100 {
+    color: #A78BFA;
+}
+
+/* 操作按钮文字 */
+body.dark-mode .action-btn span {
+    color: #E0E0E0;
+}
+
+body.dark-mode .action-btn i {
+    color: #B0B0B0;
+}
+
+/* 旋转指示器文字 */
+body.dark-mode #rotation-indicator {
+    color: #E0E0E0;
+}
+
+/* 重选图片按钮文字 */
+body.dark-mode #reselect-img {
+    color: #E0E0E0;
+}
+
+/* 边框颜色 */
+body.dark-mode .border-gray-300 {
+    border-color: #3D3D3D;
+}
+
+body.dark-mode .border-gray-200 {
+    border-color: #2D2D2D;
+}
+
+body.dark-mode .border-gray-100 {
+    border-color: #1D1D1D;
+}
+
+/* 表单元素 */
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+    background-color: #2D2D2D;
+    border-color: #3D3D3D;
+    color: #E0E0E0;
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+    color: #707070;
+}
+
+body.dark-mode input:focus,
+body.dark-mode textarea:focus,
+body.dark-mode select:focus {
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* 按钮样式 */
+body.dark-mode .bg-primary {
+    background-color: #3B82F6;
+}
+
+body.dark-mode .bg-gray-200 {
+    background-color: #3D3D3D;
+    color: #E0E0E0;
+}
+
+body.dark-mode .bg-gray-200:hover {
+    background-color: #4D4D4D;
+}
+
+/* 卡片样式 */
+body.dark-mode .shadow-sm {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .shadow-md {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+body.dark-mode .shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* 导航栏 */
+body.dark-mode .bottom-0 {
+    background-color: #1E1E1E;
+    border-top-color: #3D3D3D;
+}
+
+body.dark-mode .nav-btn.text-gray-500 {
+    color: #909090;
+}
+
+/* 上传区域 */
+body.dark-mode #image-upload-area {
+    border-color: #3D3D3D;
+    background-color: #2D2D2D;
+}
+
+/* 模态框 */
+body.dark-mode .fixed.inset-0 {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+body.dark-mode .bg-white.rounded-lg {
+    background-color: #1E1E1E;
+    color: #E0E0E0;
+}
+
+/* 模态框标题 */
+body.dark-mode .bg-white.rounded-lg h3 {
+    color: #FFFFFF;
+}
+
+/* 提示框 */
+body.dark-mode #success-toast,
+body.dark-mode #error-toast {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    color: #FFFFFF;
+}
+
+/* 加载动画 */
+body.dark-mode #loading .bg-white {
+    background-color: #1E1E1E;
+    color: #E0E0E0;
+}
+
+body.dark-mode #loading .text-gray-700 {
+    color: #E0E0E0;
+}
+
+/* 导航栏 */
+body.dark-mode .bottom-0 {
+    background-color: #1E1E1E;
+    border-top-color: #3D3D3D;
+}
+
+body.dark-mode .nav-btn.text-gray-500 {
+    color: #B0B0B0;
+}
+
+body.dark-mode .nav-btn.active,
+body.dark-mode .nav-btn.text-primary {
+    color: #3B82F6;
+}
+
+/* 上传区域 */
+body.dark-mode #image-upload-area {
+    border-color: #3D3D3D;
+    background-color: #2D2D2D;
+}
+
+body.dark-mode #image-upload-area i {
+    color: #B0B0B0;
+}
+
+body.dark-mode #image-upload-area span {
+    color: #909090;
+}
+
+/* 裁剪区域 */
+body.dark-mode #crop-area {
+    border-color: #3B82F6;
+}
+
+/* 旋转指示器 */
+body.dark-mode #rotation-indicator {
+    background-color: #1E1E1E;
+    color: #E0E0E0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* 重选图片按钮 */
+body.dark-mode #reselect-img {
+    background-color: #1E1E1E;
+    color: #E0E0E0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode #reselect-img:hover {
+    background-color: #2D2D2D;
+}
+
+/* 筛选下拉菜单 */
+body.dark-mode select {
+    color: #E0E0E0;
+}
+
+body.dark-mode select option {
+    background-color: #1E1E1E;
+    color: #E0E0E0;
+}
+
+/* 搜索栏 */
+body.dark-mode #search-bar input {
+    background-color: #2D2D2D;
+    border-color: #3D3D3D;
+    color: #E0E0E0;
+}
+
+body.dark-mode #search-bar input::placeholder {
+    color: #909090;
+}
+
+/* 下拉菜单 */
+body.dark-mode #book-title-dropdown,
+body.dark-mode #book-author-dropdown,
+body.dark-mode #tag-dropdown {
+    background-color: #1E1E1E;
+    border-color: #3D3D3D;
+}
+
+body.dark-mode #book-title-dropdown div,
+body.dark-mode #book-author-dropdown div,
+body.dark-mode #tag-dropdown div {
+    color: #E0E0E0;
+}
+
+body.dark-mode #book-title-dropdown div:hover,
+body.dark-mode #book-author-dropdown div:hover,
+body.dark-mode #tag-dropdown div:hover {
+    background-color: #3D3D3D;
+}
+
+/* 操作按钮 */
+body.dark-mode .action-btn:hover {
+    background-color: #3D3D3D;
+}
+
+body.dark-mode .action-btn i {
+    color: #B0B0B0;
+}
+
+body.dark-mode .action-btn span {
+    color: #E0E0E0;
+}
+
+
+
+/* 数据管理按钮 */
+body.dark-mode .bg-gray-50 {
+    background-color: #2D2D2D;
+    color: #E0E0E0;
+}
+
+body.dark-mode .bg-gray-50:hover {
+    background-color: #3D3D3D;
+}
+
+/* 样式选择按钮 */
+body.dark-mode .style-btn {
+    border-color: #3D3D3D;
+}
+
+body.dark-mode .style-btn.active,
+body.dark-mode .style-btn.border-primary {
+    border-color: #3B82F6;
+}
+
+body.dark-mode .style-btn span {
+    color: #E0E0E0;
+}
+
+/* 标签管理 */
+body.dark-mode .tag-item {
+    background-color: #2D2D2D;
+    color: #E0E0E0;
+}
+
+body.dark-mode .tag-item .font-medium {
+    color: #FFFFFF;
+}
+
+body.dark-mode .tag-item .text-xs {
+    color: #909090;
+}
+
+/* 书签详情 */
+body.dark-mode #bookmark-preview {
+    background-color: #2D2D2D;
+    color: #E0E0E0;
+}
+
+body.dark-mode #bookmark-preview h2 {
+    color: #FFFFFF;
+}
+
+body.dark-mode #bookmark-preview p {
+    color: #E0E0E0;
+}
+
+body.dark-mode #detail-note {
+    background-color: #2D2D2D;
+    color: #E0E0E0;
+}
+
+/* 标签样式 */
+body.dark-mode .bg-blue-100 {
+    background-color: rgba(59, 130, 246, 0.2);
+}
+
+body.dark-mode .text-blue-800 {
+    color: #60A5FA;
+}
+
+body.dark-mode .bg-purple-100 {
+    background-color: rgba(139, 92, 246, 0.2);
+}
+
+body.dark-mode .text-purple-800 {
+    color: #A78BFA;
+}
+
+/* 滚动条样式 */
+body.dark-mode ::-webkit-scrollbar {
+    width: 6px;
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+    background: #1E1E1E;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+    background: #3D3D3D;
+    border-radius: 3px;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: #4D4D4D;
+}
+
+/* 页面过渡效果 */
+body.dark-mode .page-content {
+    transition: background-color 0.3s ease;
+}
+
+/* 悬停效果 */
+body.dark-mode .card-hover:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+body.dark-mode .btn-hover:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.6), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* 加载动画 */
+body.dark-mode #loading .bg-white {
+    background-color: #1E1E1E;
+}
+
+body.dark-mode #loading .text-gray-700 {
+    color: #E0E0E0;
+}
+
+/* 提示框 */
+body.dark-mode #success-toast,
+body.dark-mode #error-toast {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* 操作按钮 */
+body.dark-mode .action-btn:hover {
+    background-color: #3D3D3D;
+}
+
+/* 搜索栏 */
+body.dark-mode #search-bar input {
+    background-color: #2D2D2D;
+    border-color: #3D3D3D;
+    color: #E0E0E0;
+}
+
+body.dark-mode #search-bar input::placeholder {
+    color: #707070;
+}
+
+/* 下拉菜单 */
+body.dark-mode #book-title-dropdown,
+body.dark-mode #book-author-dropdown,
+body.dark-mode #tag-dropdown {
+    background-color: #1E1E1E;
+    border-color: #3D3D3D;
+}
+
+body.dark-mode #book-title-dropdown div,
+body.dark-mode #book-author-dropdown div,
+body.dark-mode #tag-dropdown div {
+    color: #E0E0E0;
+}
+
+body.dark-mode #book-title-dropdown div:hover,
+body.dark-mode #book-author-dropdown div:hover,
+body.dark-mode #tag-dropdown div:hover {
+    background-color: #3D3D3D;
+}
+
+/* 图片上传区域 */
+body.dark-mode #image-upload-area {
+    border-color: #3D3D3D;
+    background-color: #2D2D2D;
+}
+
+body.dark-mode #image-upload-area i {
+    color: #707070;
+}
+
+body.dark-mode #image-upload-area span {
+    color: #909090;
+}
+
+/* 裁剪区域 */
+body.dark-mode #crop-area {
+    border-color: #3B82F6;
+}
+
+/* 旋转指示器 */
+body.dark-mode #rotation-indicator {
+    background-color: #1E1E1E;
+    color: #E0E0E0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* 重选图片按钮 */
+body.dark-mode #reselect-img {
+    background-color: #1E1E1E;
+    color: #E0E0E0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode #reselect-img:hover {
+    background-color: #2D2D2D;
+}
