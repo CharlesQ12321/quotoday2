@@ -10,6 +10,49 @@ class StorageManager {
     // 初始化存储
     init() {
         this.initializeDefaultData();
+        this.migrateData();
+    }
+
+    // 数据迁移 - 修复标签数据结构
+    migrateData() {
+        const bookmarks = this.getBookmarks();
+        let needMigration = false;
+        
+        // 检查是否需要迁移
+        bookmarks.forEach(bookmark => {
+            if (bookmark.tags && bookmark.tags.length > 0) {
+                const firstTag = bookmark.tags[0];
+                // 如果第一个标签不是数字ID（是名称），需要迁移
+                if (typeof firstTag === 'string' && !/^\d+$/.test(firstTag)) {
+                    needMigration = true;
+                }
+            }
+        });
+        
+        if (needMigration) {
+            const tags = this.getTags();
+            const updatedBookmarks = bookmarks.map(bookmark => {
+                if (bookmark.tags && bookmark.tags.length > 0) {
+                    // 将标签名称转换为标签ID
+                    const tagIds = bookmark.tags.map(tagItem => {
+                        // 如果已经是数字ID，直接使用
+                        if (typeof tagItem === 'string' && /^\d+$/.test(tagItem)) {
+                            return tagItem;
+                        }
+                        // 如果是标签名称，查找对应的ID
+                        const tag = tags.find(t => t.name === tagItem);
+                        return tag ? tag.id : null;
+                    }).filter(Boolean);
+                    
+                    bookmark.tags = tagIds;
+                }
+                return bookmark;
+            });
+            
+            localStorage.setItem(this.BOOKMARKS_KEY, JSON.stringify(updatedBookmarks));
+            // 更新标签计数
+            this.updateTagCounts();
+        }
     }
 
     // 初始化默认数据
@@ -24,7 +67,7 @@ class StorageManager {
                     page: '123',
                     content: '正是因为大规模的人类合作是以虚构的故事为基础，只要改变所讲的故事，就能改变人类合作的方式。',
                     note: '这段话说得很有道理，人类的合作确实建立在共同的信念之上。',
-                    tags: ['读书笔记'],
+                    tags: ['2'], // 使用标签ID，对应"名言"标签
                     created_at: new Date().toISOString(),
                     template: '1',
                     line_height: 1.5
@@ -36,7 +79,7 @@ class StorageManager {
                     page: '67',
                     content: '真正重要的东西，用眼睛是看不见的，只有用心才能看见。',
                     note: '经典名言，值得深思。',
-                    tags: ['名言'],
+                    tags: ['3'], // 使用标签ID，对应"感悟"标签
                     created_at: new Date(Date.now() - 86400000).toISOString(),
                     template: '1',
                     line_height: 1.5
@@ -49,11 +92,6 @@ class StorageManager {
         if (!localStorage.getItem(this.TAGS_KEY)) {
             const defaultTags = [
                 {
-                    id: '1',
-                    name: '读书笔记',
-                    count: 1
-                },
-                {
                     id: '2',
                     name: '名言',
                     count: 1
@@ -61,12 +99,7 @@ class StorageManager {
                 {
                     id: '3',
                     name: '感悟',
-                    count: 0
-                },
-                {
-                    id: '4',
-                    name: '学习',
-                    count: 0
+                    count: 1
                 }
             ];
             localStorage.setItem(this.TAGS_KEY, JSON.stringify(defaultTags));

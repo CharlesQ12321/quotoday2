@@ -678,7 +678,7 @@ class App {
                 </p>
                 <div class="flex justify-between items-center mb-3">
                     <div class="flex space-x-1">
-                        ${tagNames.map(name => `<span class="text-xs px-2 py-0.5 text-gray-600">${name}</span>`).join('')}
+                        ${tagNames.map(name => `<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full">${name}</span>`).join('')}
                     </div>
                     <span class="text-xs text-gray-500">${formattedDate}</span>
                 </div>
@@ -805,13 +805,16 @@ class App {
                     // 跳转到首页
                     this.navigateTo('home-page');
                     
-                    // 选中对应的标签并筛选
-                    const filterTagSelect = document.getElementById('filter-tag');
-                    if (filterTagSelect) {
-                        filterTagSelect.value = tag.id;
-                        // 触发筛选
-                        this.filterBookmarks();
-                    }
+                    // 延迟执行，确保页面已切换
+                    setTimeout(() => {
+                        // 选中对应的标签并筛选
+                        const filterTagSelect = document.getElementById('filter-tag');
+                        if (filterTagSelect) {
+                            filterTagSelect.value = tag.id;
+                            // 触发筛选
+                            this.filterBookmarks();
+                        }
+                    }, 300);
                 }
             });
             
@@ -1303,7 +1306,7 @@ class App {
                 </p>
                 <div class="flex justify-between items-center mb-3">
                     <div class="flex space-x-1">
-                        ${tagNames.map(name => `<span class="text-xs px-2 py-0.5 text-gray-600">${name}</span>`).join('')}
+                        ${tagNames.map(name => `<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full">${name}</span>`).join('')}
                     </div>
                     <span class="text-xs text-gray-500">${formattedDate}</span>
                 </div>
