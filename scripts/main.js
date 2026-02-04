@@ -224,28 +224,28 @@ class App {
             this.navigateTo('home-page');
         });
 
-        // 搜索按钮
-        document.getElementById('search-btn')?.addEventListener('click', () => {
-            document.getElementById('search-bar').classList.toggle('hidden');
-        });
-
-        document.getElementById('close-search')?.addEventListener('click', () => {
-            document.getElementById('search-bar').classList.add('hidden');
-        });
-
-        // 搜索输入
-        const searchInput = document.getElementById('search-bar')?.querySelector('input');
-        if (searchInput) {
-            // 使用防抖函数优化实时搜索
-            const debouncedSearch = debounce((query) => {
+        // 搜索按钮 - 点击执行搜索
+        const searchBtn = document.getElementById('search-btn');
+        const searchInput = document.getElementById('search-input');
+        if (searchBtn && searchInput) {
+            searchBtn.addEventListener('click', () => {
+                const query = searchInput.value.trim();
                 bookmarkManager.searchBookmarks(query);
-            }, 300);
-            
-            searchInput.addEventListener('input', (e) => {
-                const query = e.target.value.trim();
-                debouncedSearch(query);
+            });
+
+            // 回车键触发搜索
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const query = searchInput.value.trim();
+                    bookmarkManager.searchBookmarks(query);
+                }
             });
         }
+
+        // 重置按钮 - 重置所有筛选条件
+        document.getElementById('reset-filters-btn')?.addEventListener('click', () => {
+            this.resetFilters();
+        });
 
         // 筛选下拉菜单
         const filterTagSelect = document.getElementById('filter-tag');
@@ -1388,6 +1388,30 @@ class App {
                 bookmarkManager.deleteBookmark(bookmarkId);
             });
         });
+    }
+
+    // 重置所有筛选条件
+    resetFilters() {
+        // 重置搜索输入框
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.value = '';
+        }
+
+        // 重置筛选下拉菜单
+        const filterTag = document.getElementById('filter-tag');
+        const filterTitle = document.getElementById('filter-title');
+        const filterAuthor = document.getElementById('filter-author');
+
+        if (filterTag) filterTag.value = '';
+        if (filterTitle) filterTitle.value = '';
+        if (filterAuthor) filterAuthor.value = '';
+
+        // 重新渲染所有书签
+        this.renderBookmarks();
+
+        // 显示提示
+        this.showSuccessToast('筛选条件已重置');
     }
 
     // 显示提示信息
