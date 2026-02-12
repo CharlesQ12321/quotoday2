@@ -433,6 +433,33 @@ class App {
             }
         });
 
+        // 取消分段按钮点击事件 - 去除所有分段、换行、空格
+        document.getElementById('remove-formatting-btn')?.addEventListener('click', () => {
+            const contentTextarea = document.getElementById('bookmark-content');
+            if (contentTextarea && contentTextarea.value) {
+                try {
+                    const text = contentTextarea.value;
+                    // 去除所有换行符、回车符和多余空格
+                    const cleanedText = text
+                        .replace(/\r\n/g, '')      // 去除 Windows 换行符
+                        .replace(/\n/g, '')         // 去除 Unix 换行符
+                        .replace(/\r/g, '')         // 去除旧 Mac 换行符
+                        .replace(/\s+/g, '');       // 去除所有空格（包括普通空格、制表符等）
+
+                    contentTextarea.value = cleanedText;
+
+                    // 自动调整文本框高度
+                    this.autoResizeTextarea(contentTextarea);
+                    this.showSuccessToast('已取消分段');
+                } catch (error) {
+                    console.error('取消分段错误:', error);
+                    this.showErrorToast('取消分段失败，请稍后重试');
+                }
+            } else {
+                this.showErrorToast('请先输入内容');
+            }
+        });
+
         document.getElementById('tag-input')?.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 const tagName = e.target.value.trim();
