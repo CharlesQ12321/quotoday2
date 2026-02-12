@@ -419,12 +419,7 @@ class App {
                     contentTextarea.value = convertedText;
                     this.punctuationMode = newMode;
 
-                    // 更新按钮文字
-                    if (this.punctuationMode === 'toChinese') {
-                        convertBtn.innerHTML = '<i class="fa fa-exchange mr-1"></i> 英文→中文';
-                    } else {
-                        convertBtn.innerHTML = '<i class="fa fa-exchange mr-1"></i> 中文→英文';
-                    }
+                    // 按钮文字保持为"标点转换"
 
                     // 自动调整文本框高度
                     this.autoResizeTextarea(contentTextarea);
