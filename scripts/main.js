@@ -479,18 +479,34 @@ class App {
                             throw new Error('导出数据为空');
                         }
                         
-                        const blob = new Blob([data], { type: 'application/json' });
-                        const url = URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.download = `quotoday-backup-${new Date().toISOString().split('T')[0]}.json`;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                        URL.revokeObjectURL(url);
-                        
-                        this.hideLoading();
-                        this.showSuccessToast('数据导出成功');
+                        // 检测是否在 Android WebView 中
+                        if (this.isAndroidWebView()) {
+                            // 在 Android WebView 中，尝试使用 AndroidInterface
+                            if (window.AndroidInterface && window.AndroidInterface.saveFile) {
+                                const fileName = `quotoday-backup-${new Date().toISOString().split('T')[0]}.json`;
+                                window.AndroidInterface.saveFile(fileName, data);
+                                this.hideLoading();
+                                this.showSuccessToast('数据导出成功');
+                            } else {
+                                // 备用方案：显示数据让用户复制
+                                this.showExportModal(data);
+                                this.hideLoading();
+                            }
+                        } else {
+                            // 普通浏览器环境
+                            const blob = new Blob([data], { type: 'application/json' });
+                            const url = URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = `quotoday-backup-${new Date().toISOString().split('T')[0]}.json`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            URL.revokeObjectURL(url);
+                            
+                            this.hideLoading();
+                            this.showSuccessToast('数据导出成功');
+                        }
                     } catch (error) {
                         console.error('导出数据错误:', error);
                         this.hideLoading();
@@ -504,41 +520,44 @@ class App {
         document.querySelectorAll('button')?.forEach(btn => {
             if (btn.textContent.trim() === '导入数据') {
                 btn.addEventListener('click', () => {
-                    const input = document.createElement('input');
-                    input.type = 'file';
-                    input.accept = '.json';
-                    input.addEventListener('change', (e) => {
-                        const file = e.target.files[0];
-                        if (file) {
-                            this.showLoading();
-                            
-                            const reader = new FileReader();
-                            reader.onload = (event) => {
-                                try {
-                                    const result = storage.importData(event.target.result);
-                                    this.hideLoading();
-                                    
-                                    if (result) {
-                                        this.renderBookmarks();
-                                        this.renderTags();
-                                        this.showSuccessToast('数据导入成功');
-                                    }
-                                } catch (error) {
-                                    console.error('导入数据错误:', error);
-                                    this.hideLoading();
-                                    this.showErrorToast(`导入失败: ${error.message}`);
-                                }
+                    // 检测是否在 Android WebView 中
+                    if (this.isAndroidWebView()) {
+                        // 在 Android WebView 中，尝试使用 AndroidInterface
+                        if (window.AndroidInterface && window.AndroidInterface.selectFile) {
+                            // 设置回调函数供 Android 调用
+                            window.handleAndroidFileSelected = (fileContent) => {
+                                this.handleImportData(fileContent);
                             };
-                            
-                            reader.onerror = () => {
-                                this.hideLoading();
-                                this.showErrorToast('文件读取失败');
-                            };
-                            
-                            reader.readAsText(file);
+                            window.AndroidInterface.selectFile('application/json');
+                        } else {
+                            // 备用方案：显示输入框让用户粘贴数据
+                            this.showImportModal();
                         }
-                    });
-                    input.click();
+                    } else {
+                        // 普通浏览器环境
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.accept = '.json';
+                        input.addEventListener('change', (e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                                this.showLoading();
+                                
+                                const reader = new FileReader();
+                                reader.onload = (event) => {
+                                    this.handleImportData(event.target.result);
+                                };
+                                
+                                reader.onerror = () => {
+                                    this.hideLoading();
+                                    this.showErrorToast('文件读取失败');
+                                };
+                                
+                                reader.readAsText(file);
+                            }
+                        });
+                        input.click();
+                    }
                 });
             }
         });
@@ -1457,6 +1476,137 @@ class App {
 
         // 显示提示
         this.showSuccessToast('筛选条件已重置');
+    }
+
+    // 检测是否在 Android WebView 中运行
+    isAndroidWebView() {
+        const userAgent = navigator.userAgent.toLowerCase();
+        return userAgent.includes('android') && userAgent.includes('wv');
+    }
+
+    // 处理导入数据
+    handleImportData(fileContent) {
+        try {
+            const result = storage.importData(fileContent);
+            this.hideLoading();
+            
+            if (result) {
+                this.renderBookmarks();
+                this.renderTags();
+                this.showSuccessToast('数据导入成功');
+            }
+        } catch (error) {
+            console.error('导入数据错误:', error);
+            this.hideLoading();
+            this.showErrorToast(`导入失败: ${error.message}`);
+        }
+    }
+
+    // 显示导出数据模态框（用于 Android WebView 环境）
+    showExportModal(data) {
+        // 移除已存在的模态框
+        const existingModal = document.getElementById('export-modal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        const modal = document.createElement('div');
+        modal.id = 'export-modal';
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        
+        modal.innerHTML = `
+            <div class="bg-white rounded-lg p-6 w-11/12 max-w-lg max-h-[80vh] flex flex-col">
+                <h3 class="text-lg font-bold mb-4">导出数据</h3>
+                <p class="text-sm text-gray-600 mb-3">请复制以下数据并保存为 .json 文件：</p>
+                <textarea id="export-data-textarea" class="flex-1 w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono text-xs resize-none" style="min-height: 200px;" readonly>${data.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+                <div class="flex justify-end space-x-3 mt-4">
+                    <button id="copy-export-data" class="btn-primary text-sm px-4 py-2">复制数据</button>
+                    <button id="close-export-modal" class="btn-secondary text-sm px-4 py-2">关闭</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // 复制按钮事件
+        document.getElementById('copy-export-data').addEventListener('click', () => {
+            const textarea = document.getElementById('export-data-textarea');
+            textarea.select();
+            textarea.setSelectionRange(0, 999999); // 移动设备兼容
+            
+            try {
+                document.execCommand('copy');
+                this.showSuccessToast('数据已复制到剪贴板');
+            } catch (err) {
+                this.showErrorToast('复制失败，请手动复制');
+            }
+        });
+        
+        // 关闭按钮事件
+        document.getElementById('close-export-modal').addEventListener('click', () => {
+            modal.remove();
+        });
+        
+        // 点击背景关闭
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+
+    // 显示导入数据模态框（用于 Android WebView 环境）
+    showImportModal() {
+        // 移除已存在的模态框
+        const existingModal = document.getElementById('import-modal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        const modal = document.createElement('div');
+        modal.id = 'import-modal';
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        
+        modal.innerHTML = `
+            <div class="bg-white rounded-lg p-6 w-11/12 max-w-lg max-h-[80vh] flex flex-col">
+                <h3 class="text-lg font-bold mb-4">导入数据</h3>
+                <p class="text-sm text-gray-600 mb-3">请将之前导出的 JSON 数据粘贴到下方：</p>
+                <textarea id="import-data-textarea" class="flex-1 w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono text-xs resize-none" style="min-height: 200px;" placeholder="在此粘贴 JSON 数据..."></textarea>
+                <div class="flex justify-end space-x-3 mt-4">
+                    <button id="confirm-import-data" class="btn-primary text-sm px-4 py-2">导入</button>
+                    <button id="close-import-modal" class="btn-secondary text-sm px-4 py-2">关闭</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // 导入按钮事件
+        document.getElementById('confirm-import-data').addEventListener('click', () => {
+            const textarea = document.getElementById('import-data-textarea');
+            const data = textarea.value.trim();
+            
+            if (!data) {
+                this.showErrorToast('请输入数据');
+                return;
+            }
+            
+            this.showLoading();
+            modal.remove();
+            this.handleImportData(data);
+        });
+        
+        // 关闭按钮事件
+        document.getElementById('close-import-modal').addEventListener('click', () => {
+            modal.remove();
+        });
+        
+        // 点击背景关闭
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
     }
 
     // 显示提示信息
