@@ -3,6 +3,7 @@
 class App {
     constructor() {
         this.currentPage = 'home-page';
+        this.punctuationMode = 'toChinese'; // 'toChinese' 或 'toEnglish'
         this.init();
     }
 
@@ -387,6 +388,55 @@ class App {
             // 初始调整
             this.autoResizeTextarea(contentTextarea);
         }
+
+        // 转换标点按钮点击事件 - 自动检测并转换
+        document.getElementById('convert-punctuation-btn')?.addEventListener('click', () => {
+            const contentTextarea = document.getElementById('bookmark-content');
+            const convertBtn = document.getElementById('convert-punctuation-btn');
+            if (contentTextarea && contentTextarea.value) {
+                try {
+                    const text = contentTextarea.value;
+                    // 检测文本中主要使用哪种标点
+                    const hasChinesePunctuation = /[，。！？；：""''（）【】《》]/.test(text);
+                    const hasEnglishPunctuation = /[,.!?;:"''()\[\]<>]/.test(text);
+
+                    let convertedText;
+                    let successMessage;
+                    let newMode;
+
+                    if (hasChinesePunctuation && !hasEnglishPunctuation) {
+                        // 主要是中文标点，转换为英文标点
+                        convertedText = aiOCR.convertToEnglishPunctuation(text);
+                        successMessage = '已转换为英文标点';
+                        newMode = 'toEnglish';
+                    } else {
+                        // 默认或主要是英文标点，转换为中文标点
+                        convertedText = aiOCR.convertToChinesePunctuation(text);
+                        successMessage = '已转换为中文标点';
+                        newMode = 'toChinese';
+                    }
+
+                    contentTextarea.value = convertedText;
+                    this.punctuationMode = newMode;
+
+                    // 更新按钮文字
+                    if (this.punctuationMode === 'toChinese') {
+                        convertBtn.innerHTML = '<i class="fa fa-exchange mr-1"></i> 英文→中文';
+                    } else {
+                        convertBtn.innerHTML = '<i class="fa fa-exchange mr-1"></i> 中文→英文';
+                    }
+
+                    // 自动调整文本框高度
+                    this.autoResizeTextarea(contentTextarea);
+                    this.showSuccessToast(successMessage);
+                } catch (error) {
+                    console.error('转换标点错误:', error);
+                    this.showErrorToast('转换标点失败，请稍后重试');
+                }
+            } else {
+                this.showErrorToast('请先输入内容');
+            }
+        });
 
         document.getElementById('tag-input')?.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {

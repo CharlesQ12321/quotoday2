@@ -147,6 +147,72 @@ class AIOCR {
         return text;
     }
 
+    // 将英文标点转换为中文标点
+    convertToChinesePunctuation(text) {
+        // 去除多余的空白字符
+        text = text.trim();
+
+        // 英文标点到中文标点的映射
+        const punctuationMap = {
+            ',': '，',
+            '.': '。',
+            '!': '！',
+            '?': '？',
+            ';': '；',
+            ':': '：',
+            '"': '“',
+            "'": '‘',
+            '(': '（',
+            ')': '）',
+            '[': '【',
+            ']': '】',
+            '<': '《',
+            '>': '》'
+        };
+
+        // 转换标点符号
+        Object.entries(punctuationMap).forEach(([key, value]) => {
+            // 转义正则表达式中的特殊字符
+            const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            text = text.replace(new RegExp(escapedKey, 'g'), value);
+        });
+
+        return text;
+    }
+
+    // 将中文标点转换为英文标点
+    convertToEnglishPunctuation(text) {
+        // 去除多余的空白字符
+        text = text.trim();
+
+        // 中文标点到英文标点的映射
+        const punctuationMap = {
+            '，': ',',
+            '。': '.',
+            '！': '!',
+            '？': '?',
+            '；': ';',
+            '：': ':',
+            '“': '"',
+            '”': '"',
+            '‘': "'",
+            '’': "'",
+            '（': '(',
+            '）': ')',
+            '【': '[',
+            '】': ']',
+            '《': '<',
+            '》': '>'
+        };
+
+        // 转换标点符号
+        Object.entries(punctuationMap).forEach(([key, value]) => {
+            text = text.replace(new RegExp(key, 'g'), value);
+        });
+
+        return text;
+    }
+
     // 显示加载提示
     showLoading(message = '处理中...') {
         const loading = document.getElementById('loading');
