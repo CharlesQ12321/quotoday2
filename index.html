@@ -673,6 +673,46 @@
         </div>
     </div>
     
+    <!-- 导出方式选择模态框 -->
+    <div id="export-method-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-4/5 max-w-sm">
+            <h3 class="text-lg font-bold mb-4 text-center">选择导出方式</h3>
+            <div class="space-y-3">
+                <button id="export-file-btn" class="w-full py-3 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 transition">
+                    <i class="fa fa-file-text-o mr-3 text-xl text-gray-600"></i>
+                    <span>导出为 JSON 文件</span>
+                </button>
+                <button id="export-text-btn" class="w-full py-3 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 transition">
+                    <i class="fa fa-copy mr-3 text-xl text-gray-600"></i>
+                    <span>文本框复制</span>
+                </button>
+            </div>
+            <button id="cancel-export-method" class="w-full mt-4 py-2 text-gray-500 hover:text-gray-700 transition">
+                取消
+            </button>
+        </div>
+    </div>
+    
+    <!-- 导入方式选择模态框 -->
+    <div id="import-method-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-4/5 max-w-sm">
+            <h3 class="text-lg font-bold mb-4 text-center">选择导入方式</h3>
+            <div class="space-y-3">
+                <button id="import-file-btn" class="w-full py-3 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 transition">
+                    <i class="fa fa-file-text-o mr-3 text-xl text-gray-600"></i>
+                    <span>从 JSON 文件导入</span>
+                </button>
+                <button id="import-text-btn" class="w-full py-3 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 transition">
+                    <i class="fa fa-paste mr-3 text-xl text-gray-600"></i>
+                    <span>文本框粘贴</span>
+                </button>
+            </div>
+            <button id="cancel-import-method" class="w-full mt-4 py-2 text-gray-500 hover:text-gray-700 transition">
+                取消
+            </button>
+        </div>
+    </div>
+    
     <!-- 相机拍照模态框 -->
     <div id="camera-modal" class="fixed inset-0 bg-black flex flex-col items-center justify-center z-50 hidden">
         <div class="w-full h-full relative">

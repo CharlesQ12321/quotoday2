@@ -522,97 +522,20 @@ class App {
         });
 
         // 数据导入导出
-        // 导出按钮
+        // 导出按钮 - 显示方式选择模态框
         document.querySelectorAll('button')?.forEach(btn => {
             if (btn.textContent.trim() === '导出数据') {
                 btn.addEventListener('click', () => {
-                    try {
-                        this.showLoading();
-                        
-                        const data = storage.exportData();
-                        if (!data) {
-                            throw new Error('导出数据为空');
-                        }
-                        
-                        // 检测是否在 Android WebView 中
-                        if (this.isAndroidWebView()) {
-                            // 在 Android WebView 中，尝试使用 AndroidInterface
-                            if (window.AndroidInterface && window.AndroidInterface.saveFile) {
-                                const fileName = `quotoday-backup-${new Date().toISOString().split('T')[0]}.json`;
-                                window.AndroidInterface.saveFile(fileName, data);
-                                this.hideLoading();
-                                this.showSuccessToast('数据导出成功');
-                            } else {
-                                // 备用方案：显示数据让用户复制
-                                this.showExportModal(data);
-                                this.hideLoading();
-                            }
-                        } else {
-                            // 普通浏览器环境
-                            const blob = new Blob([data], { type: 'application/json' });
-                            const url = URL.createObjectURL(blob);
-                            const link = document.createElement('a');
-                            link.href = url;
-                            link.download = `quotoday-backup-${new Date().toISOString().split('T')[0]}.json`;
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                            URL.revokeObjectURL(url);
-                            
-                            this.hideLoading();
-                            this.showSuccessToast('数据导出成功');
-                        }
-                    } catch (error) {
-                        console.error('导出数据错误:', error);
-                        this.hideLoading();
-                        this.showErrorToast('数据导出失败，请稍后重试');
-                    }
+                    this.showExportMethodModal();
                 });
             }
         });
 
-        // 导入按钮
+        // 导入按钮 - 显示方式选择模态框
         document.querySelectorAll('button')?.forEach(btn => {
             if (btn.textContent.trim() === '导入数据') {
                 btn.addEventListener('click', () => {
-                    // 检测是否在 Android WebView 中
-                    if (this.isAndroidWebView()) {
-                        // 在 Android WebView 中，尝试使用 AndroidInterface
-                        if (window.AndroidInterface && window.AndroidInterface.selectFile) {
-                            // 设置回调函数供 Android 调用
-                            window.handleAndroidFileSelected = (fileContent) => {
-                                this.handleImportData(fileContent);
-                            };
-                            window.AndroidInterface.selectFile('application/json');
-                        } else {
-                            // 备用方案：显示输入框让用户粘贴数据
-                            this.showImportModal();
-                        }
-                    } else {
-                        // 普通浏览器环境
-                        const input = document.createElement('input');
-                        input.type = 'file';
-                        input.accept = '.json';
-                        input.addEventListener('change', (e) => {
-                            const file = e.target.files[0];
-                            if (file) {
-                                this.showLoading();
-                                
-                                const reader = new FileReader();
-                                reader.onload = (event) => {
-                                    this.handleImportData(event.target.result);
-                                };
-                                
-                                reader.onerror = () => {
-                                    this.hideLoading();
-                                    this.showErrorToast('文件读取失败');
-                                };
-                                
-                                reader.readAsText(file);
-                            }
-                        });
-                        input.click();
-                    }
+                    this.showImportMethodModal();
                 });
             }
         });
@@ -1662,6 +1585,193 @@ class App {
                 modal.remove();
             }
         });
+    }
+
+    // 显示导出方式选择模态框
+    showExportMethodModal() {
+        const modal = document.getElementById('export-method-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+        }
+        
+        // 绑定按钮事件
+        document.getElementById('export-file-btn').onclick = () => {
+            this.closeExportMethodModal();
+            this.exportAsFile();
+        };
+        
+        document.getElementById('export-text-btn').onclick = () => {
+            this.closeExportMethodModal();
+            this.exportAsText();
+        };
+        
+        document.getElementById('cancel-export-method').onclick = () => {
+            this.closeExportMethodModal();
+        };
+        
+        // 点击背景关闭
+        modal?.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                this.closeExportMethodModal();
+            }
+        });
+    }
+
+    // 关闭导出方式选择模态框
+    closeExportMethodModal() {
+        const modal = document.getElementById('export-method-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    }
+
+    // 导出为文件
+    exportAsFile() {
+        try {
+            this.showLoading();
+            
+            const data = storage.exportData();
+            if (!data) {
+                throw new Error('导出数据为空');
+            }
+            
+            // 检测是否在 Android WebView 中
+            if (this.isAndroidWebView()) {
+                // 在 Android WebView 中，尝试使用 AndroidInterface
+                if (window.AndroidInterface && window.AndroidInterface.saveFile) {
+                    const fileName = `quotoday-backup-${new Date().toISOString().split('T')[0]}.json`;
+                    window.AndroidInterface.saveFile(fileName, data);
+                    this.hideLoading();
+                    this.showSuccessToast('数据导出成功');
+                } else {
+                    // 备用方案：显示数据让用户复制
+                    this.showExportModal(data);
+                    this.hideLoading();
+                }
+            } else {
+                // 普通浏览器环境
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `quotoday-backup-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                this.hideLoading();
+                this.showSuccessToast('数据导出成功');
+            }
+        } catch (error) {
+            console.error('导出数据错误:', error);
+            this.hideLoading();
+            this.showErrorToast('数据导出失败，请稍后重试');
+        }
+    }
+
+    // 导出为文本（显示复制模态框）
+    exportAsText() {
+        try {
+            this.showLoading();
+            
+            const data = storage.exportData();
+            if (!data) {
+                throw new Error('导出数据为空');
+            }
+            
+            this.showExportModal(data);
+            this.hideLoading();
+        } catch (error) {
+            console.error('导出数据错误:', error);
+            this.hideLoading();
+            this.showErrorToast('数据导出失败，请稍后重试');
+        }
+    }
+
+    // 显示导入方式选择模态框
+    showImportMethodModal() {
+        const modal = document.getElementById('import-method-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+        }
+        
+        // 绑定按钮事件
+        document.getElementById('import-file-btn').onclick = () => {
+            this.closeImportMethodModal();
+            this.importFromFile();
+        };
+        
+        document.getElementById('import-text-btn').onclick = () => {
+            this.closeImportMethodModal();
+            this.importFromText();
+        };
+        
+        document.getElementById('cancel-import-method').onclick = () => {
+            this.closeImportMethodModal();
+        };
+        
+        // 点击背景关闭
+        modal?.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                this.closeImportMethodModal();
+            }
+        });
+    }
+
+    // 关闭导入方式选择模态框
+    closeImportMethodModal() {
+        const modal = document.getElementById('import-method-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    }
+
+    // 从文件导入
+    importFromFile() {
+        // 检测是否在 Android WebView 中
+        if (this.isAndroidWebView()) {
+            // 在 Android WebView 中，尝试使用 AndroidInterface
+            if (window.AndroidInterface && window.AndroidInterface.selectFile) {
+                // 设置回调函数供 Android 调用
+                window.handleAndroidFileSelected = (fileContent) => {
+                    this.handleImportData(fileContent);
+                };
+                window.AndroidInterface.selectFile('application/json');
+            } else {
+                // 备用方案：显示输入框让用户粘贴数据
+                this.showImportModal();
+            }
+        } else {
+            // 普通浏览器环境
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    this.showLoading();
+                    
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        this.handleImportData(event.target.result);
+                    };
+                    
+                    reader.onerror = () => {
+                        this.hideLoading();
+                        this.showErrorToast('文件读取失败');
+                    };
+                    
+                    reader.readAsText(file);
+                }
+            });
+            input.click();
+        }
+    }
+
+    // 从文本导入（显示粘贴模态框）
+    importFromText() {
+        this.showImportModal();
     }
 
     // 显示提示信息
