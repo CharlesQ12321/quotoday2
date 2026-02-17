@@ -289,9 +289,9 @@ class App {
             tagManager.closeAddTagModal();
         });
 
-        // 图片上传
+        // 图片上传 - 打开选择模态框
         document.getElementById('upload-btn')?.addEventListener('click', () => {
-            document.getElementById('image-input').click();
+            this.openImageSourceModal();
         });
 
         document.getElementById('image-input')?.addEventListener('change', (e) => {
@@ -299,6 +299,34 @@ class App {
             if (file) {
                 this.previewImage(file);
             }
+        });
+
+        // 图片来源选择模态框事件
+        document.getElementById('take-photo-btn')?.addEventListener('click', () => {
+            this.closeImageSourceModal();
+            this.startCamera();
+        });
+
+        document.getElementById('choose-file-btn')?.addEventListener('click', () => {
+            this.closeImageSourceModal();
+            document.getElementById('image-input').click();
+        });
+
+        document.getElementById('cancel-image-source')?.addEventListener('click', () => {
+            this.closeImageSourceModal();
+        });
+
+        // 相机模态框事件
+        document.getElementById('cancel-camera-btn')?.addEventListener('click', () => {
+            this.stopCamera();
+        });
+
+        document.getElementById('capture-btn')?.addEventListener('click', () => {
+            this.capturePhoto();
+        });
+
+        document.getElementById('switch-camera-btn')?.addEventListener('click', () => {
+            this.switchCamera();
         });
 
         // 重新选择图片
@@ -2367,6 +2395,78 @@ class App {
                 app.navigateTo('home-page');
             }
         });
+    }
+
+    // 图片来源选择模态框相关方法
+    openImageSourceModal() {
+        document.getElementById('image-source-modal').classList.remove('hidden');
+    }
+
+    closeImageSourceModal() {
+        document.getElementById('image-source-modal').classList.add('hidden');
+    }
+
+    // 相机相关方法
+    async startCamera() {
+        try {
+            this.currentCameraFacing = 'environment'; // 默认使用后置摄像头
+            await this.openCameraStream();
+            document.getElementById('camera-modal').classList.remove('hidden');
+        } catch (error) {
+            console.error('无法访问摄像头:', error);
+            this.showErrorToast('无法访问摄像头，请检查权限设置');
+        }
+    }
+
+    async openCameraStream() {
+        const constraints = {
+            video: {
+                facingMode: this.currentCameraFacing,
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
+            }
+        };
+
+        if (this.mediaStream) {
+            this.mediaStream.getTracks().forEach(track => track.stop());
+        }
+
+        this.mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+        const video = document.getElementById('camera-video');
+        video.srcObject = this.mediaStream;
+    }
+
+    stopCamera() {
+        if (this.mediaStream) {
+            this.mediaStream.getTracks().forEach(track => track.stop());
+            this.mediaStream = null;
+        }
+        document.getElementById('camera-modal').classList.add('hidden');
+    }
+
+    async switchCamera() {
+        this.currentCameraFacing = this.currentCameraFacing === 'environment' ? 'user' : 'environment';
+        try {
+            await this.openCameraStream();
+        } catch (error) {
+            console.error('切换摄像头失败:', error);
+        }
+    }
+
+    capturePhoto() {
+        const video = document.getElementById('camera-video');
+        const canvas = document.getElementById('camera-canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob((blob) => {
+            const file = new File([blob], 'photo.jpg', { type: 'image/jpeg' });
+            this.stopCamera();
+            this.previewImage(file);
+        }, 'image/jpeg', 0.9);
     }
 }
 
