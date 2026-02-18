@@ -130,29 +130,29 @@ class ShareService {
 
         container.innerHTML = `
             <!-- 标题和作者 - 左右分布 -->
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px;">
-                <div style="font-size: 20px; font-weight: 700; color: ${style.titleColor}; line-height: 1.4;">${bookmark.title}</div>
-                <div style="font-size: 16px; font-weight: 600; color: ${style.authorColor}; line-height: 1.4; text-align: right;">${bookmark.author}</div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+                <div style="font-size: 18px; font-weight: 600; color: ${style.titleColor}; line-height: 1.4;">${bookmark.title}</div>
+                <div style="font-size: 14px; font-weight: 500; color: ${style.authorColor}; line-height: 1.4; text-align: right;">${bookmark.author}</div>
             </div>
-            
+
             <!-- 内容区域 - 居中对齐 -->
-            <div style="font-size: 18px; color: ${style.contentColor}; line-height: 1.8; margin-bottom: 48px; text-align: center; padding: 20px 0;">
+            <div style="font-size: 14px; color: ${style.contentColor}; line-height: 1.625; margin-bottom: 32px; text-align: center; padding: 16px 0;">
                 ${bookmark.content}
             </div>
-            
+
             <!-- 底部区域 - 标签和日期左右分布 -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                     ${tagNames.map(name => `
-                        <span style="font-size: 14px; color: ${style.tagColor};">${name}</span>
+                        <span style="font-size: 12px; color: ${style.tagColor};">${name}</span>
                     `).join('')}
                 </div>
-                <div style="font-size: 14px; color: ${style.dateColor};">${formattedDate}</div>
+                <div style="font-size: 12px; color: ${style.dateColor};">${formattedDate}</div>
             </div>
-            
+
             <!-- 分隔线和品牌标识 -->
-            <div style="border-top: 1px solid ${style.borderColor}; padding-top: 20px; text-align: center;">
-                <div style="font-size: 14px; color: ${style.brandColor};">每日一签 · Quotoday</div>
+            <div style="border-top: 1px solid ${style.borderColor}; padding-top: 16px; text-align: center;">
+                <div style="font-size: 12px; color: ${style.brandColor};">每日一签 · Quotoday</div>
             </div>
         `;
 
@@ -214,14 +214,13 @@ class ShareService {
         }
 
         const url = URL.createObjectURL(imageBlob);
-        
+
         const modal = document.createElement('div');
         modal.id = 'share-modal';
         modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
         modal.innerHTML = `
             <div class="bg-white rounded-lg p-6 w-11/12 max-w-md max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold">分享书签</h3>
+                <div class="flex justify-end items-center mb-4">
                     <button id="close-share-modal" class="text-gray-400 hover:text-gray-600">
                         <i class="fa fa-times text-xl"></i>
                     </button>
@@ -234,13 +233,9 @@ class ShareService {
                         <i class="fa fa-download mr-2"></i>
                         <span>下载图片</span>
                     </button>
-                    <button id="copy-text-btn" class="w-full py-3 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 transition">
-                        <i class="fa fa-copy mr-2"></i>
-                        <span>复制文字内容</span>
-                    </button>
                 </div>
                 <div class="mt-4 p-3 bg-gray-50 rounded-lg">
-                    <p class="text-sm text-gray-600 text-center">提示：下载图片后，您可以手动分享到微信、QQ等应用</p>
+                    <p class="text-sm text-gray-600 text-center">长按图片进行分享</p>
                 </div>
             </div>
         `;
@@ -259,24 +254,6 @@ class ShareService {
         document.getElementById('download-image-btn').addEventListener('click', () => {
             this.downloadImage(imageBlob, `quotoday-${Date.now()}.png`);
             app.showSuccessToast('图片已下载');
-        });
-
-        // 绑定复制文字按钮事件
-        document.getElementById('copy-text-btn').addEventListener('click', async () => {
-            const text = `${bookmark.title}\n${bookmark.author}\n\n${bookmark.content}`;
-            try {
-                await navigator.clipboard.writeText(text);
-                app.showSuccessToast('文字已复制到剪贴板');
-            } catch (err) {
-                // 降级方案
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                app.showSuccessToast('文字已复制到剪贴板');
-            }
         });
     }
 
