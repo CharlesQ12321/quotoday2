@@ -45,7 +45,59 @@ class ShareService {
         this.currentBookmarkId = id;
     }
 
-    // 创建临时书签预览元素 - 样式与书签查看详情页一致
+    // 获取当前样式设置
+    getCurrentStyle() {
+        const settings = storage.getSettings();
+        return settings.style || '1';
+    }
+
+    // 获取样式配置
+    getStyleConfig(styleNumber) {
+        const configs = {
+            '1': {
+                // 简约风格
+                backgroundColor: '#FFFFFF',
+                fontFamily: "'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+                titleColor: '#1F2937',
+                authorColor: '#1F2937',
+                contentColor: '#374151',
+                tagColor: '#6B7280',
+                dateColor: '#6B7280',
+                borderColor: '#E5E7EB',
+                brandColor: '#9CA3AF',
+                cardBackground: '#FFFFFF'
+            },
+            '2': {
+                // 文艺风格
+                backgroundColor: '#FEFDFB',
+                fontFamily: "'Georgia', 'Cambria', 'Times New Roman', serif",
+                titleColor: '#374151',
+                authorColor: '#374151',
+                contentColor: '#4B5563',
+                tagColor: '#B45309',
+                dateColor: '#6B7280',
+                borderColor: '#FDE68A',
+                brandColor: '#991B1B',
+                cardBackground: '#FEF3C7'
+            },
+            '3': {
+                // 暗黑风格
+                backgroundColor: '#1E1E1E',
+                fontFamily: "'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+                titleColor: '#FFFFFF',
+                authorColor: '#E0E0E0',
+                contentColor: '#E0E0E0',
+                tagColor: '#60A5FA',
+                dateColor: '#909090',
+                borderColor: '#3D3D3D',
+                brandColor: '#3B82F6',
+                cardBackground: '#2D2D2D'
+            }
+        };
+        return configs[styleNumber] || configs['1'];
+    }
+
+    // 创建临时书签预览元素 - 根据设置样式动态生成
     createBookmarkPreviewElement(bookmark) {
         // 格式化日期
         const date = new Date(bookmark.created_at);
@@ -57,7 +109,11 @@ class ShareService {
             return tag ? tag.name : '';
         }).filter(Boolean);
 
-        // 创建临时容器 - 仅包含书签内容，无外围空白
+        // 获取当前样式配置
+        const styleNumber = this.getCurrentStyle();
+        const style = this.getStyleConfig(styleNumber);
+
+        // 创建临时容器
         const container = document.createElement('div');
         container.id = 'temp-bookmark-preview';
         container.style.cssText = `
@@ -65,8 +121,8 @@ class ShareService {
             left: -9999px;
             top: -9999px;
             width: 700px;
-            background-color: #FFFFFF;
-            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: ${style.cardBackground};
+            font-family: ${style.fontFamily};
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             padding: 32px;
@@ -75,12 +131,12 @@ class ShareService {
         container.innerHTML = `
             <!-- 标题和作者 - 左右分布 -->
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px;">
-                <div style="font-size: 20px; font-weight: 700; color: #1F2937; line-height: 1.4;">${bookmark.title}</div>
-                <div style="font-size: 16px; font-weight: 600; color: #1F2937; line-height: 1.4; text-align: right;">${bookmark.author}</div>
+                <div style="font-size: 20px; font-weight: 700; color: ${style.titleColor}; line-height: 1.4;">${bookmark.title}</div>
+                <div style="font-size: 16px; font-weight: 600; color: ${style.authorColor}; line-height: 1.4; text-align: right;">${bookmark.author}</div>
             </div>
             
             <!-- 内容区域 - 居中对齐 -->
-            <div style="font-size: 18px; color: #374151; line-height: 1.8; margin-bottom: 48px; text-align: center; padding: 20px 0;">
+            <div style="font-size: 18px; color: ${style.contentColor}; line-height: 1.8; margin-bottom: 48px; text-align: center; padding: 20px 0;">
                 ${bookmark.content}
             </div>
             
@@ -88,15 +144,15 @@ class ShareService {
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                 <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                     ${tagNames.map(name => `
-                        <span style="font-size: 14px; color: #6B7280;">${name}</span>
+                        <span style="font-size: 14px; color: ${style.tagColor};">${name}</span>
                     `).join('')}
                 </div>
-                <div style="font-size: 14px; color: #6B7280;">${formattedDate}</div>
+                <div style="font-size: 14px; color: ${style.dateColor};">${formattedDate}</div>
             </div>
             
             <!-- 分隔线和品牌标识 -->
-            <div style="border-top: 1px solid #E5E7EB; padding-top: 20px; text-align: center;">
-                <div style="font-size: 14px; color: #9CA3AF;">每日一签 · Quotoday</div>
+            <div style="border-top: 1px solid ${style.borderColor}; padding-top: 20px; text-align: center;">
+                <div style="font-size: 14px; color: ${style.brandColor};">每日一签 · Quotoday</div>
             </div>
         `;
 
