@@ -97,67 +97,133 @@ class ShareService {
         return configs[styleNumber] || configs['1'];
     }
 
-    // 创建临时书签预览元素 - 根据设置样式动态生成
+    // 创建临时书签预览元素 - 使用实际的书签查看功能
     createBookmarkPreviewElement(bookmark) {
+        // 获取当前样式配置
+        const styleNumber = this.getCurrentStyle();
+
+        // 根据风格设置背景颜色
+        let backgroundColor = '#f3f4f6'; // 默认风格1背景
+        if (styleNumber === '2') {
+            backgroundColor = '#F5F5F4'; // 风格2背景
+        } else if (styleNumber === '3') {
+            backgroundColor = '#0F172A'; // 风格3背景
+        }
+
+        // 创建临时容器（模拟书签查看页面的容器）
+        const viewContainer = document.createElement('div');
+        viewContainer.id = 'temp-bookmark-preview';
+        viewContainer.className = 'fixed inset-0 flex items-center justify-center z-50';
+        viewContainer.style.backgroundColor = backgroundColor;
+        viewContainer.style.left = '-9999px';
+        viewContainer.style.top = '-9999px';
+
+        // 创建书签内容容器
+        const contentContainer = document.createElement('div');
+        contentContainer.className = 'w-full max-w-2xl p-6';
+
+        // 创建书签卡片
+        const bookmarkCard = document.createElement('div');
+        bookmarkCard.className = 'p-6 rounded-lg shadow-sm';
+        bookmarkCard.style.border = 'none';
+        bookmarkCard.style.backgroundColor = styleNumber === '3' ? '#1E293B' : '#FFFFFF';
+
+        // 创建内容包装器，用于垂直居中
+        const contentWrapper = document.createElement('div');
+        contentWrapper.className = 'flex flex-col';
+        contentWrapper.style.width = '100%';
+        contentWrapper.style.maxWidth = '800px';
+        contentWrapper.style.margin = 'auto';
+
         // 格式化日期
         const date = new Date(bookmark.created_at);
         const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-        
+
         // 获取标签名称
         const tagNames = bookmark.tags.map(tagId => {
             const tag = storage.getTag(tagId);
             return tag ? tag.name : '';
         }).filter(Boolean);
 
-        // 获取当前样式配置
-        const styleNumber = this.getCurrentStyle();
-        const style = this.getStyleConfig(styleNumber);
-
-        // 创建临时容器
-        const container = document.createElement('div');
-        container.id = 'temp-bookmark-preview';
-        container.style.cssText = `
-            position: fixed;
-            left: -9999px;
-            top: -9999px;
-            width: 700px;
-            background-color: ${style.cardBackground};
-            font-family: ${style.fontFamily};
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 32px;
+        // 创建标题和作者信息
+        const infoContainer = document.createElement('div');
+        infoContainer.className = 'flex justify-between items-start mb-4';
+        infoContainer.style.color = styleNumber === '3' ? '#F8FAFC' : '#1F2937';
+        infoContainer.innerHTML = `
+            <h3 class="font-semibold">${bookmark.title}</h3>
+            <span class="font-semibold text-sm">${bookmark.author}</span>
         `;
 
-        container.innerHTML = `
-            <!-- 标题和作者 - 左右分布 -->
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
-                <div style="font-size: 18px; font-weight: 600; color: ${style.titleColor}; line-height: 1.4;">${bookmark.title}</div>
-                <div style="font-size: 14px; font-weight: 500; color: ${style.authorColor}; line-height: 1.4; text-align: right;">${bookmark.author}</div>
-            </div>
+        // 创建内容区域
+        const textContainer = document.createElement('div');
+        textContainer.className = 'py-6';
+        textContainer.style.minHeight = '100px';
 
-            <!-- 内容区域 - 居中对齐 -->
-            <div style="font-size: 14px; color: ${style.contentColor}; line-height: 1.625; margin-bottom: 32px; text-align: center; padding: 16px 0;">
-                ${bookmark.content}
-            </div>
+        // 创建文本元素
+        const contentText = document.createElement('div');
+        contentText.className = 'text-sm leading-relaxed';
+        contentText.style.color = styleNumber === '3' ? '#F8FAFC' : '#374151';
+        contentText.style.whiteSpace = 'pre-wrap';
+        contentText.style.wordWrap = 'break-word';
+        contentText.textContent = bookmark.content;
 
-            <!-- 底部区域 - 标签和日期左右分布 -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                    ${tagNames.map(name => `
-                        <span style="font-size: 12px; color: ${style.tagColor};">${name}</span>
-                    `).join('')}
-                </div>
-                <div style="font-size: 12px; color: ${style.dateColor};">${formattedDate}</div>
-            </div>
+        // 创建日期和标签信息
+        const metaContainer = document.createElement('div');
+        metaContainer.className = 'flex justify-between items-center mt-4';
 
-            <!-- 分隔线和品牌标识 -->
-            <div style="border-top: 1px solid ${style.borderColor}; padding-top: 16px; text-align: center;">
-                <div style="font-size: 12px; color: ${style.brandColor};">每日一签 · Quotoday</div>
-            </div>
-        `;
+        // 标签容器
+        const tagsContainer = document.createElement('div');
+        tagsContainer.className = 'flex flex-wrap gap-1';
 
-        document.body.appendChild(container);
-        return container;
+        tagNames.forEach(name => {
+            const tagEl = document.createElement('span');
+            tagEl.className = 'text-xs px-2 py-0.5';
+            tagEl.style.color = styleNumber === '3' ? '#94A3B8' : '#6B7280';
+            tagEl.textContent = name;
+            tagsContainer.appendChild(tagEl);
+        });
+
+        // 日期信息
+        const dateContainer = document.createElement('div');
+        dateContainer.className = 'text-xs';
+        dateContainer.style.color = styleNumber === '3' ? '#94A3B8' : '#6B7280';
+        dateContainer.textContent = formattedDate;
+
+        // 创建品牌标识部分
+        const brandContainer = document.createElement('div');
+        brandContainer.className = 'mt-6 pt-4';
+        brandContainer.style.borderTop = '1px solid ' + (styleNumber === '3' ? '#3D3D3D' : '#E5E7EB');
+        brandContainer.style.textAlign = 'center';
+        const brandText = document.createElement('div');
+        brandText.className = 'text-xs';
+        brandText.style.color = styleNumber === '3' ? '#3B82F6' : '#9CA3AF';
+        brandText.textContent = '每日一签 · Quotoday';
+        brandContainer.appendChild(brandText);
+
+        // 应用用户选定的风格
+        const styleLink = document.getElementById('current-style');
+        if (styleLink) {
+            const styleUrl = styleLink.href;
+            const viewStyleLink = document.createElement('link');
+            viewStyleLink.rel = 'stylesheet';
+            viewStyleLink.href = styleUrl;
+            viewContainer.appendChild(viewStyleLink);
+        }
+
+        // 组装容器
+        contentWrapper.appendChild(infoContainer);
+        textContainer.appendChild(contentText);
+        contentWrapper.appendChild(textContainer);
+        metaContainer.appendChild(tagsContainer);
+        metaContainer.appendChild(dateContainer);
+        contentWrapper.appendChild(metaContainer);
+        contentWrapper.appendChild(brandContainer);
+        bookmarkCard.appendChild(contentWrapper);
+        contentContainer.appendChild(bookmarkCard);
+        viewContainer.appendChild(contentContainer);
+
+        document.body.appendChild(viewContainer);
+        return viewContainer;
     }
 
     // 将书签转换为图片
@@ -168,8 +234,11 @@ class ShareService {
             // 创建临时预览元素
             const previewElement = this.createBookmarkPreviewElement(bookmark);
             
-            // 使用html2canvas生成图片
-            const canvas = await html2canvas(previewElement, {
+            // 获取书签卡片元素
+            const bookmarkCard = previewElement.querySelector('.rounded-lg');
+            
+            // 使用html2canvas生成图片（只截取书签卡片）
+            const canvas = await html2canvas(bookmarkCard, {
                 backgroundColor: null,
                 scale: 2,
                 useCORS: true
