@@ -507,7 +507,7 @@ class BookmarkManager {
                 if (!e.target.closest('.action-btn')) {
                     const contentEl = bookmarkEl.querySelector('.bookmark-content');
                     const actionsEl = bookmarkEl.querySelector('.bookmark-actions');
-                    
+
                     // 先关闭所有其他书签的展开状态
                     document.querySelectorAll('.bookmark-item').forEach(item => {
                         if (item !== bookmarkEl) {
@@ -517,7 +517,7 @@ class BookmarkManager {
                             if (itemActions) itemActions.classList.add('hidden');
                         }
                     });
-                    
+
                     // 切换当前书签的展开状态
                     if (contentEl) {
                         contentEl.classList.toggle('expanded');

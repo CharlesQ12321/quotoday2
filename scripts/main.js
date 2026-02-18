@@ -2193,6 +2193,17 @@ class App {
             shareService.shareBookmarkFromView(id, viewContainer);
         });
 
+        // 创建品牌文字和分割线容器
+        const brandContainer = document.createElement('div');
+        brandContainer.className = 'mt-4 pt-3';
+        brandContainer.style.borderTop = styleNumber === '3' ? '1px solid #374151' : '1px solid #E5E7EB';
+        
+        const brandText = document.createElement('div');
+        brandText.className = 'text-center text-xs';
+        brandText.style.color = styleNumber === '3' ? '#94A3B8' : '#9CA3AF';
+        brandText.textContent = '每日一签 · Quotoday';
+        brandContainer.appendChild(brandText);
+
         // 组装容器
         contentWrapper.appendChild(infoContainer);
         textContainer.appendChild(contentText);
@@ -2200,6 +2211,7 @@ class App {
         metaContainer.appendChild(tagsContainer);
         metaContainer.appendChild(dateContainer);
         contentWrapper.appendChild(metaContainer);
+        contentWrapper.appendChild(brandContainer);
         bookmarkCard.appendChild(contentWrapper);
         contentContainer.appendChild(bookmarkCard);
         contentContainer.appendChild(shareButton);
@@ -2507,9 +2519,22 @@ class App {
             // 更新书签数据
             updateBookmarkView(nextBookmarkCard, nextBookmark);
             
+            // 创建分享按钮
+            const shareButton = document.createElement('button');
+            shareButton.className = 'action-btn w-full py-3 mt-4 flex items-center justify-center';
+            shareButton.innerHTML = `
+                <i class="fa fa-share-alt mr-2"></i>
+                <span>分享</span>
+            `;
+            shareButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                shareService.shareBookmarkFromView(bookmarkId, nextViewContainer);
+            });
+            
             // 组装容器
             nextContentContainer.innerHTML = '';
             nextContentContainer.appendChild(nextBookmarkCard);
+            nextContentContainer.appendChild(shareButton);
             nextViewContainer.appendChild(nextContentContainer);
             
             // 添加到文档
