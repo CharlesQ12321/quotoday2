@@ -487,6 +487,23 @@ class App {
                 this.showErrorToast('请先输入内容');
             }
         });
+        
+        // 内容查重按钮点击事件
+        document.getElementById('check-duplicate-btn')?.addEventListener('click', () => {
+            const contentTextarea = document.getElementById('bookmark-content');
+            if (contentTextarea && contentTextarea.value.trim()) {
+                const inputText = contentTextarea.value.trim();
+                const hasDuplicate = this.checkForDuplicateBookmark(inputText);
+                
+                if (hasDuplicate) {
+                    this.showErrorToast('该书签内容已存在！');
+                } else {
+                    this.showSuccessToast('书签内容尚不存在');
+                }
+            } else {
+                this.showErrorToast('请先输入内容');
+            }
+        });
 
         document.getElementById('tag-input')?.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -1460,6 +1477,66 @@ class App {
     isAndroidWebView() {
         const userAgent = navigator.userAgent.toLowerCase();
         return userAgent.includes('android') && userAgent.includes('wv');
+    }
+    
+    // 计算两个字符串之间的相似度（0-1之间）
+    calculateSimilarity(str1, str2) {
+        if (!str1 || !str2) return 0;
+        
+        // 去除空格、标点符号并统一大小写
+        const cleanStr1 = str1.replace(/\s/g, '').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '').toLowerCase();
+        const cleanStr2 = str2.replace(/\s/g, '').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '').toLowerCase();
+        
+        if (cleanStr1.length === 0 || cleanStr2.length === 0) return 0;
+        
+        // 确保str1是较短的字符串
+        if (cleanStr1.length > cleanStr2.length) {
+            [cleanStr1, cleanStr2] = [cleanStr2, cleanStr1];
+        }
+        
+        // 检查是否一个字符串是另一个的子字符串
+        if (cleanStr2.includes(cleanStr1)) {
+            return cleanStr1.length / cleanStr2.length;
+        }
+        
+        // 计算最长公共子序列长度
+        const lcsLength = this.longestCommonSubsequence(cleanStr1, cleanStr2);
+        
+        // 返回相似度，基于LCS长度相对于平均长度的比例
+        return 2 * lcsLength / (cleanStr1.length + cleanStr2.length);
+    }
+    
+    // 计算最长公共子序列长度
+    longestCommonSubsequence(str1, str2) {
+        const m = str1.length;
+        const n = str2.length;
+        const dp = Array(m + 1).fill().map(() => Array(n + 1).fill(0));
+        
+        for (let i = 1; i <= m; i++) {
+            for (let j = 1; j <= n; j++) {
+                if (str1[i - 1] === str2[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                } else {
+                    dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                }
+            }
+        }
+        
+        return dp[m][n];
+    }
+    
+    // 检查是否有重复的书签内容
+    checkForDuplicateBookmark(inputText) {
+        const bookmarks = storage.getBookmarks();
+        
+        for (const bookmark of bookmarks) {
+            const similarity = this.calculateSimilarity(inputText, bookmark.content);
+            if (similarity >= 0.9) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     // 处理导入数据
