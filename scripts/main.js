@@ -741,7 +741,7 @@ class App {
                     </div>
                     <span class="text-xs text-gray-500">${formattedDate}</span>
                 </div>
-                <div class="bookmark-actions hidden grid grid-cols-3 gap-2 mb-2">
+                <div class="bookmark-actions hidden grid grid-cols-4 gap-2 mb-2">
                     <button class="action-btn view-btn flex flex-col items-center justify-center p-2" data-id="${bookmark.id}">
                         <i class="fa fa-eye text-gray-500 mb-1"></i>
                         <span class="text-xs text-gray-500">查看</span>
@@ -749,6 +749,10 @@ class App {
                     <button class="action-btn edit-btn flex flex-col items-center justify-center p-2" data-id="${bookmark.id}">
                         <i class="fa fa-edit text-gray-500 mb-1"></i>
                         <span class="text-xs text-gray-500">编辑</span>
+                    </button>
+                    <button class="action-btn share-btn flex flex-col items-center justify-center p-2" data-id="${bookmark.id}">
+                        <i class="fa fa-share-alt text-gray-500 mb-1"></i>
+                        <span class="text-xs text-gray-500">分享</span>
                     </button>
                     <button class="action-btn delete-btn flex flex-col items-center justify-center p-2" data-id="${bookmark.id}">
                         <i class="fa fa-trash text-gray-500 mb-1"></i>
@@ -817,6 +821,14 @@ class App {
                 e.stopPropagation();
                 const bookmarkId = e.currentTarget.dataset.id;
                 bookmarkManager.deleteBookmark(bookmarkId);
+            });
+        });
+
+        document.querySelectorAll('.share-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const bookmarkId = e.currentTarget.dataset.id;
+                shareService.shareBookmark(bookmarkId);
             });
         });
         
@@ -1369,7 +1381,7 @@ class App {
                     </div>
                     <span class="text-xs text-gray-500">${formattedDate}</span>
                 </div>
-                <div class="bookmark-actions hidden grid grid-cols-3 gap-2 mb-2">
+                <div class="bookmark-actions hidden grid grid-cols-4 gap-2 mb-2">
                     <button class="action-btn view-btn flex flex-col items-center justify-center p-2" data-id="${bookmark.id}">
                         <i class="fa fa-eye text-gray-500 mb-1"></i>
                         <span class="text-xs text-gray-500">查看</span>
@@ -1377,6 +1389,10 @@ class App {
                     <button class="action-btn edit-btn flex flex-col items-center justify-center p-2" data-id="${bookmark.id}">
                         <i class="fa fa-edit text-gray-500 mb-1"></i>
                         <span class="text-xs text-gray-500">编辑</span>
+                    </button>
+                    <button class="action-btn share-btn flex flex-col items-center justify-center p-2" data-id="${bookmark.id}">
+                        <i class="fa fa-share-alt text-gray-500 mb-1"></i>
+                        <span class="text-xs text-gray-500">分享</span>
                     </button>
                     <button class="action-btn delete-btn flex flex-col items-center justify-center p-2" data-id="${bookmark.id}">
                         <i class="fa fa-trash text-gray-500 mb-1"></i>
