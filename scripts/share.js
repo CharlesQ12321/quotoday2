@@ -326,6 +326,96 @@ class ShareService {
         });
     }
 
+    // 从查看页面分享书签
+    async shareBookmarkFromView(id, viewContainer) {
+        const bookmark = storage.getBookmark(id);
+        if (!bookmark) {
+            app.showErrorToast('找不到要分享的书签');
+            return;
+        }
+
+        this.setCurrentBookmarkId(id);
+
+        try {
+            // 从查看页面截取书签卡片作为图片
+            const imageBlob = await this.convertViewToImage(viewContainer);
+            const file = new File([imageBlob], `quotoday-${Date.now()}.png`, { type: 'image/png' });
+            
+            // 检测是否是移动设备
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+            // 检查是否支持Web Share API且支持分享文件
+            if (isMobile && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                // 移动端使用系统分享功能，包含图片
+                await navigator.share({
+                    title: bookmark.title,
+                    text: `${bookmark.content} - ${bookmark.author}`,
+                    files: [file]
+                });
+            } else if (isMobile && navigator.share) {
+                // 移动端只支持文本分享
+                await navigator.share({
+                    title: bookmark.title,
+                    text: `${bookmark.content} - ${bookmark.author}`,
+                    url: window.location.origin
+                });
+                // 同时提供下载选项
+                this.downloadImage(imageBlob, `quotoday-${Date.now()}.png`);
+                app.showSuccessToast('图片已保存，请手动分享');
+            } else {
+                // 电脑端显示分享模态框
+                this.showShareModal(imageBlob, bookmark);
+            }
+        } catch (error) {
+            console.error('分享失败:', error);
+            // 分享取消不算错误
+            if (error.name !== 'AbortError') {
+                app.showErrorToast('分享失败，请稍后重试');
+            }
+        }
+    }
+
+    // 将查看页面的书签转换为图片
+    async convertViewToImage(viewContainer) {
+        try {
+            app.showLoading();
+            
+            // 获取书签卡片元素（不包含分享按钮和品牌标识）
+            const bookmarkCard = viewContainer.querySelector('.rounded-lg');
+            
+            // 临时隐藏分享按钮
+            const shareButton = viewContainer.querySelector('.action-btn');
+            if (shareButton) {
+                shareButton.style.display = 'none';
+            }
+            
+            // 使用html2canvas生成图片
+            const canvas = await html2canvas(bookmarkCard, {
+                backgroundColor: null,
+                scale: 2,
+                useCORS: true
+            });
+            
+            // 恢复分享按钮显示
+            if (shareButton) {
+                shareButton.style.display = '';
+            }
+            
+            // 转换为Blob
+            const blob = await new Promise((resolve) => {
+                canvas.toBlob(resolve, 'image/png');
+            });
+            
+            app.hideLoading();
+            return blob;
+        } catch (error) {
+            console.error('生成图片失败:', error);
+            app.hideLoading();
+            app.showErrorToast('生成图片失败，请稍后重试');
+            throw error;
+        }
+    }
+
     // 分享书签
     async shareBookmark(id) {
         const bookmark = storage.getBookmark(id);
