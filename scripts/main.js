@@ -1484,8 +1484,8 @@ class App {
         if (!str1 || !str2) return 0;
         
         // 去除空格、标点符号并统一大小写
-        const cleanStr1 = str1.replace(/\s/g, '').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '').toLowerCase();
-        const cleanStr2 = str2.replace(/\s/g, '').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '').toLowerCase();
+        let cleanStr1 = str1.replace(/\s/g, '').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '').toLowerCase();
+        let cleanStr2 = str2.replace(/\s/g, '').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '').toLowerCase();
         
         if (cleanStr1.length === 0 || cleanStr2.length === 0) return 0;
         
