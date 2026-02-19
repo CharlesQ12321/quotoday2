@@ -41,11 +41,14 @@ class ImageEditor {
             if (!e.target.classList.contains('resize-handle')) {
                 this.startDrag(e.touches[0]);
             }
-        });
+        }, { passive: false });
 
         document.addEventListener('touchmove', (e) => {
+            if (this.isResizing) {
+                e.preventDefault();
+            }
             this.handleDrag(e.touches[0]);
-        });
+        }, { passive: false });
 
         document.addEventListener('touchend', () => {
             this.stopDrag();
@@ -66,15 +69,15 @@ class ImageEditor {
         // 创建四个角和四条边的调整手柄
         const handles = [
             // 四个角
-            { className: 'resize-handle top-left', style: 'top: -4px; left: -4px; cursor: nwse-resize;' },
-            { className: 'resize-handle top-right', style: 'top: -4px; right: -4px; cursor: nesw-resize;' },
-            { className: 'resize-handle bottom-left', style: 'bottom: -4px; left: -4px; cursor: nesw-resize;' },
-            { className: 'resize-handle bottom-right', style: 'bottom: -4px; right: -4px; cursor: nwse-resize;' },
+            { className: 'resize-handle top-left', style: 'top: -16px; left: -16px; cursor: nwse-resize;' },
+            { className: 'resize-handle top-right', style: 'top: -16px; right: -16px; cursor: nesw-resize;' },
+            { className: 'resize-handle bottom-left', style: 'bottom: -16px; left: -16px; cursor: nesw-resize;' },
+            { className: 'resize-handle bottom-right', style: 'bottom: -16px; right: -16px; cursor: nwse-resize;' },
             // 四条边
-            { className: 'resize-handle top', style: 'top: -4px; left: 50%; transform: translateX(-50%); cursor: ns-resize;' },
-            { className: 'resize-handle bottom', style: 'bottom: -4px; left: 50%; transform: translateX(-50%); cursor: ns-resize;' },
-            { className: 'resize-handle left', style: 'left: -4px; top: 50%; transform: translateY(-50%); cursor: ew-resize;' },
-            { className: 'resize-handle right', style: 'right: -4px; top: 50%; transform: translateY(-50%); cursor: ew-resize;' }
+            { className: 'resize-handle top', style: 'top: -16px; left: 50%; transform: translateX(-50%); cursor: ns-resize;' },
+            { className: 'resize-handle bottom', style: 'bottom: -16px; left: 50%; transform: translateX(-50%); cursor: ns-resize;' },
+            { className: 'resize-handle left', style: 'left: -16px; top: 50%; transform: translateY(-50%); cursor: ew-resize;' },
+            { className: 'resize-handle right', style: 'right: -16px; top: 50%; transform: translateY(-50%); cursor: ew-resize;' }
         ];
 
         handles.forEach(handleConfig => {
@@ -82,8 +85,8 @@ class ImageEditor {
             handle.className = handleConfig.className;
             handle.style.cssText = `
                 position: absolute;
-                width: 8px;
-                height: 8px;
+                width: 32px;
+                height: 32px;
                 background-color: #3B82F6;
                 border: 2px solid white;
                 border-radius: 50%;
@@ -136,6 +139,12 @@ class ImageEditor {
         const deltaX = e.clientX - this.startX;
         const deltaY = e.clientY - this.startY;
 
+        // 如果正在调整大小，不执行拖动
+        if (this.isResizing) {
+            this.handleResize(e, deltaX, deltaY);
+            return;
+        }
+
         if (this.isDragging) {
             // 计算新位置
             let newLeft = this.startLeft + deltaX;
@@ -152,8 +161,6 @@ class ImageEditor {
             // 更新位置
             cropArea.style.left = `${newLeft}px`;
             cropArea.style.top = `${newTop}px`;
-        } else if (this.isResizing) {
-            this.handleResize(e, deltaX, deltaY);
         }
     }
 

@@ -167,6 +167,8 @@
             .bookmark-content {
                 max-height: 3.5rem; /* 初始高度，约2行 */
                 transition: max-height 0.3s ease;
+                text-align: justify; /* 两端对齐 */
+                text-justify: inter-ideograph; /* 中文两端对齐优化 */
             }
             .bookmark-content.expanded {
                 max-height: 20rem; /* 展开后的最大高度 */

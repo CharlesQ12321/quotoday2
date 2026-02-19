@@ -2095,6 +2095,8 @@ class App {
         contentText.style.color = styleNumber === '3' ? '#F8FAFC' : '#374151';
         contentText.style.whiteSpace = 'pre-wrap';
         contentText.style.wordWrap = 'break-word';
+        contentText.style.textAlign = 'justify';
+        contentText.style.textJustify = 'inter-ideograph';
         contentText.textContent = bookmark.content;
 
         // 创建日期和标签信息（与首页一致：左下、右下）
