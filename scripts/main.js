@@ -2046,17 +2046,33 @@ class App {
 
         // 根据风格设置背景颜色
         let backgroundColor = '#f3f4f6'; // 默认风格1背景
+        let cardBackgroundColor = '#FFFFFF';
+        let textColor = '#1F2937';
+        let contentTextColor = '#374151';
+        let secondaryTextColor = '#6B7280';
+        
         if (styleNumber === '2') {
-            backgroundColor = '#F5F5F4'; // 风格2背景
+            // 鎏金风格
+            backgroundColor = '#0F0F1A';
+            cardBackgroundColor = '#1A1A2E';
+            textColor = '#F5F5DC';
+            contentTextColor = '#F5F5DC';
+            secondaryTextColor = '#C9B896';
         } else if (styleNumber === '3') {
             backgroundColor = '#0F172A'; // 风格3背景
+            cardBackgroundColor = '#1E293B';
+            textColor = '#F8FAFC';
+            contentTextColor = '#F8FAFC';
+            secondaryTextColor = '#94A3B8';
         }
 
         // 创建查看模式容器
         const viewContainer = document.createElement('div');
         viewContainer.className = 'fixed inset-0 flex items-center justify-center z-50';
         viewContainer.id = 'bookmark-view-container';
-        viewContainer.style.backgroundColor = backgroundColor;
+        viewContainer.style.background = styleNumber === '2' 
+            ? 'linear-gradient(135deg, #0F0F1A 0%, #1A1A2E 50%, #16213E 100%)' 
+            : backgroundColor;
 
         // 创建书签内容容器
         const contentContainer = document.createElement('div');
@@ -2065,8 +2081,11 @@ class App {
         // 创建书签卡片
         const bookmarkCard = document.createElement('div');
         bookmarkCard.className = 'p-6 rounded-lg shadow-sm';
-        bookmarkCard.style.border = 'none'; // 取消查看状态下的边框
-        bookmarkCard.style.backgroundColor = styleNumber === '3' ? '#1E293B' : '#FFFFFF';
+        bookmarkCard.style.border = styleNumber === '2' ? '1px solid #2A2A3E' : 'none';
+        bookmarkCard.style.background = styleNumber === '2' 
+            ? 'linear-gradient(145deg, #1A1A2E 0%, #16213E 100%)' 
+            : (styleNumber === '3' ? '#1E293B' : '#FFFFFF');
+        bookmarkCard.style.boxShadow = styleNumber === '2' ? '0 4px 20px rgba(212, 175, 55, 0.3)' : '';
 
         // 创建内容包装器，用于垂直居中
         const contentWrapper = document.createElement('div');
@@ -2078,21 +2097,21 @@ class App {
         // 创建标题和作者信息（与首页一致：左上、右上）
         const infoContainer = document.createElement('div');
         infoContainer.className = 'flex justify-between items-start mb-4';
-        infoContainer.style.color = styleNumber === '3' ? '#F8FAFC' : '#1F2937';
+        infoContainer.style.color = textColor;
         infoContainer.innerHTML = `
-            <h3 class="font-semibold">${bookmark.title}</h3>
-            <span class="font-semibold text-sm">${bookmark.author}</span>
+            <h3 class="font-semibold" style="color: ${textColor}">${bookmark.title}</h3>
+            <span class="font-semibold text-sm" style="color: ${textColor}">${bookmark.author}</span>
         `;
 
         // 创建内容区域（垂直居中）
         const textContainer = document.createElement('div');
         textContainer.className = 'py-6';
-        textContainer.style.minHeight = '100px'; // 确保有最小高度，避免内容太少时显得拥挤
+        textContainer.style.minHeight = '100px';
         
         // 创建文本元素
         const contentText = document.createElement('div');
         contentText.className = 'text-sm leading-relaxed';
-        contentText.style.color = styleNumber === '3' ? '#F8FAFC' : '#374151';
+        contentText.style.color = contentTextColor;
         contentText.style.whiteSpace = 'pre-wrap';
         contentText.style.wordWrap = 'break-word';
         contentText.style.textAlign = 'justify';
@@ -2116,7 +2135,7 @@ class App {
         tagNames.forEach(name => {
             const tagEl = document.createElement('span');
             tagEl.className = 'text-xs px-2 py-0.5';
-            tagEl.style.color = styleNumber === '3' ? '#94A3B8' : '#6B7280';
+            tagEl.style.color = secondaryTextColor;
             tagEl.textContent = name;
             tagsContainer.appendChild(tagEl);
         });
@@ -2124,7 +2143,7 @@ class App {
         // 日期信息
         const dateContainer = document.createElement('div');
         dateContainer.className = 'text-xs';
-        dateContainer.style.color = styleNumber === '3' ? '#94A3B8' : '#6B7280';
+        dateContainer.style.color = secondaryTextColor;
         
         // 格式化日期
         const date = new Date(bookmark.created_at);
@@ -2134,7 +2153,10 @@ class App {
         // 创建关闭按钮
         const closeButton = document.createElement('button');
         closeButton.className = 'absolute top-6 right-6 text-3xl';
-        closeButton.style.color = styleNumber === '3' ? '#94A3B8' : '#6B7280';
+        closeButton.style.color = secondaryTextColor;
+        closeButton.style.background = 'transparent';
+        closeButton.style.border = 'none';
+        closeButton.style.cursor = 'pointer';
         closeButton.innerHTML = '&times;';
         closeButton.addEventListener('click', () => {
             document.body.removeChild(viewContainer);
@@ -2143,12 +2165,12 @@ class App {
         // 添加滑动方向指示
         const leftArrow = document.createElement('div');
         leftArrow.className = 'absolute left-4 top-1/2 transform -translate-y-1/2 text-2xl opacity-30 cursor-pointer hover:opacity-100 transition-opacity';
-        leftArrow.style.color = styleNumber === '3' ? '#94A3B8' : '#6B7280';
+        leftArrow.style.color = secondaryTextColor;
         leftArrow.innerHTML = '<i class="fa fa-angle-left"></i>';
         
         const rightArrow = document.createElement('div');
         rightArrow.className = 'absolute right-4 top-1/2 transform -translate-y-1/2 text-2xl opacity-30 cursor-pointer hover:opacity-100 transition-opacity';
-        rightArrow.style.color = styleNumber === '3' ? '#94A3B8' : '#6B7280';
+        rightArrow.style.color = secondaryTextColor;
         rightArrow.innerHTML = '<i class="fa fa-angle-right"></i>';
 
         // 只有在有多个书签时才显示箭头
@@ -2183,12 +2205,23 @@ class App {
             });
         }
 
-        // 创建分享按钮
+        // 创建分享按钮 - 鎏金风格统一按钮样式（与所有按钮一致）
         const shareButton = document.createElement('button');
-        shareButton.className = 'action-btn w-full py-3 mt-4 flex items-center justify-center';
+        shareButton.className = 'w-full py-3 mt-4 flex items-center justify-center';
+        if (styleNumber === '2') {
+            // 鎏金风格按钮样式 - 统一使用卡片背景
+            shareButton.style.background = 'linear-gradient(145deg, #1A1A2E 0%, #16213E 100%)';
+            shareButton.style.color = '#F5F5DC'; // 米色文字
+            shareButton.style.border = '1px solid #2A2A3E';
+            shareButton.style.borderRadius = '8px';
+            shareButton.style.fontWeight = '500';
+            shareButton.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.5)';
+        } else {
+            shareButton.classList.add('action-btn');
+        }
         shareButton.innerHTML = `
-            <i class="fa fa-share-alt mr-2"></i>
-            <span>分享</span>
+            <i class="fa fa-share-alt mr-2" style="color: inherit;"></i>
+            <span style="color: inherit;">分享</span>
         `;
         shareButton.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -2198,11 +2231,15 @@ class App {
         // 创建品牌文字和分割线容器
         const brandContainer = document.createElement('div');
         brandContainer.className = 'mt-4 pt-3';
-        brandContainer.style.borderTop = styleNumber === '3' ? '1px solid #374151' : '1px solid #E5E7EB';
+        if (styleNumber === '2') {
+            brandContainer.style.borderTop = '1px solid #2A2A3E';
+        } else {
+            brandContainer.style.borderTop = styleNumber === '3' ? '1px solid #374151' : '1px solid #E5E7EB';
+        }
         
         const brandText = document.createElement('div');
         brandText.className = 'text-center text-xs';
-        brandText.style.color = styleNumber === '3' ? '#94A3B8' : '#9CA3AF';
+        brandText.style.color = secondaryTextColor;
         brandText.textContent = '每日一签 · Quotoday';
         brandContainer.appendChild(brandText);
 
