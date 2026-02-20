@@ -2081,11 +2081,11 @@ class App {
         // 创建书签卡片
         const bookmarkCard = document.createElement('div');
         bookmarkCard.className = 'p-6 rounded-lg shadow-sm';
-        bookmarkCard.style.border = styleNumber === '2' ? '1px solid #2A2A3E' : 'none';
+        bookmarkCard.style.border = styleNumber === '2' ? '1px solid #D4AF37' : 'none';
         bookmarkCard.style.background = styleNumber === '2' 
             ? 'linear-gradient(145deg, #1A1A2E 0%, #16213E 100%)' 
             : (styleNumber === '3' ? '#1E293B' : '#FFFFFF');
-        bookmarkCard.style.boxShadow = styleNumber === '2' ? '0 4px 20px rgba(212, 175, 55, 0.3)' : '';
+        bookmarkCard.style.boxShadow = styleNumber === '2' ? '0 0 25px rgba(212, 175, 55, 0.4)' : '';
 
         // 创建内容包装器，用于垂直居中
         const contentWrapper = document.createElement('div');

@@ -8,7 +8,7 @@
     --secondary-color: #1A1A2E;
     --secondary-light: #16213E;
     --accent-color: #FFD700;
-    --text-primary: #F5F5DC;
+    --text-primary: #E5D28A;
     --text-secondary: #C9B896;
     --text-gold: #D4AF37;
     --background-color: #0F0F1A;
@@ -636,11 +636,35 @@ input[type="range"]::-moz-range-thumb {
     background: linear-gradient(135deg, #0F0F1A 0%, #1A1A2E 50%, #16213E 100%) !important;
 }
 
+/* 书签查看界面中的书签卡片 - 默认金色边框（与输入框一致） */
 #bookmark-view-container .bookmark-item,
 #bookmark-view-container #bookmark-preview {
     background: var(--card-gradient);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--primary-color);
     border-radius: 16px;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+    transition: all 0.3s ease;
+}
+
+/* 书签卡片悬停时增强金色边框效果 */
+#bookmark-view-container .bookmark-item:hover,
+#bookmark-view-container #bookmark-preview:hover {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+}
+
+/* 书签查看界面中的图片样式 - 金色边框 */
+#bookmark-view-container img,
+#bookmark-view-container .bookmark-image {
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+/* 图片悬停时显示金色边框（与按钮悬停一致） */
+#bookmark-view-container img:hover,
+#bookmark-view-container .bookmark-image:hover {
+    border-color: var(--primary-color);
     box-shadow: var(--shadow-gold);
 }
 
