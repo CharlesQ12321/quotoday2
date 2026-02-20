@@ -329,9 +329,9 @@ button:active {
     box-shadow: var(--shadow-gold);
 }
 
-/* 输入框样式 */
+/* 输入框样式 - 与按钮完全一致的风格 */
 input, textarea {
-    background: var(--card-background);
+    background: var(--card-gradient);
     border: 1px solid var(--border-subtle);
     border-radius: 8px;
     padding: 12px;
@@ -339,10 +339,19 @@ input, textarea {
     transition: all 0.3s ease;
 }
 
+/* 输入框悬停效果 - 与按钮悬停一致 */
+input:hover, textarea:hover {
+    background: linear-gradient(145deg, #1A1A2E 0%, #2A2A3E 100%);
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-gold);
+}
+
+/* 输入框聚焦效果 - 最大亮度 */
 input:focus, textarea:focus {
     outline: none;
+    background: linear-gradient(145deg, #1A1A2E 0%, #2A2A3E 100%);
     border-color: var(--primary-color);
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
 }
 
 input::placeholder, textarea::placeholder {
