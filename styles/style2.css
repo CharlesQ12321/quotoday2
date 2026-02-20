@@ -330,27 +330,31 @@ button:active {
 }
 
 /* 输入框样式 - 与按钮完全一致的风格 */
-input, textarea {
-    background: var(--card-gradient);
-    border: 1px solid var(--border-subtle);
-    border-radius: 8px;
+input, textarea,
+input[class*="border"], textarea[class*="border"],
+input.border-gray-300, textarea.border-gray-300 {
+    background: var(--card-gradient) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: 8px !important;
     padding: 12px;
-    color: var(--text-primary);
+    color: var(--text-primary) !important;
     transition: all 0.3s ease;
 }
 
 /* 输入框悬停效果 - 与按钮悬停一致 */
-input:hover, textarea:hover {
-    background: linear-gradient(145deg, #1A1A2E 0%, #2A2A3E 100%);
-    border-color: var(--primary-color);
+input:hover, textarea:hover,
+input.border-gray-300:hover, textarea.border-gray-300:hover {
+    background: linear-gradient(145deg, #1A1A2E 0%, #2A2A3E 100%) !important;
+    border-color: var(--primary-color) !important;
     box-shadow: var(--shadow-gold);
 }
 
 /* 输入框聚焦效果 - 最大亮度 */
-input:focus, textarea:focus {
+input:focus, textarea:focus,
+input.border-gray-300:focus, textarea.border-gray-300:focus {
     outline: none;
-    background: linear-gradient(145deg, #1A1A2E 0%, #2A2A3E 100%);
-    border-color: var(--primary-color);
+    background: linear-gradient(145deg, #1A1A2E 0%, #2A2A3E 100%) !important;
+    border-color: var(--primary-color) !important;
     box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
 }
 
