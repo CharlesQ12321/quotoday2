@@ -95,27 +95,28 @@ class BookmarkManager {
             }
             
             // 保存书签
-            storage.saveBookmark(bookmark);
-            
+            const result = storage.saveBookmark(bookmark);
+            const newBookmarkId = result.newBookmarkId;
+
             // 更新标签计数
             storage.updateTagCounts();
-            
+
             app.hideLoading();
-            
+
             // 显示成功提示
             const successMessage = this.currentEditingId ? '书签更新成功' : '书签保存成功';
             app.showSuccessToast(successMessage);
-            
+
             // 重置表单
             this.resetForm();
-            
+
             // 清除编辑状态
             this.currentEditingId = null;
-            
+
             // 导航回首页
             setTimeout(() => {
                 app.navigateTo('home-page');
-                app.renderBookmarks();
+                app.renderBookmarks(newBookmarkId);
                 app.renderTags();
             }, 1000);
         } catch (error) {

@@ -209,6 +209,30 @@ input, textarea {
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
+/* 新书签高亮效果 */
+.highlight-bookmark {
+    animation: highlight-pulse 2s ease-in-out;
+}
+
+@keyframes highlight-pulse {
+    0% {
+        background-color: #F3F4F6;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+    20% {
+        background-color: #DBEAFE;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
+    }
+    80% {
+        background-color: #DBEAFE;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
+    }
+    100% {
+        background-color: #F3F4F6;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+}
+
 /* 响应式设计 */
 @media (max-width: 640px) {
     .phone-frame {

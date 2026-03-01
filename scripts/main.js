@@ -705,17 +705,18 @@ class App {
     }
 
     // 渲染书签列表
-    renderBookmarks() {
+    renderBookmarks(highlightBookmarkId = null) {
         const bookmarkList = document.getElementById('bookmark-list');
         if (!bookmarkList) return;
 
         const bookmarks = storage.getBookmarks();
-        
+
         bookmarkList.innerHTML = '';
-        
+
         bookmarks.forEach(bookmark => {
             const bookmarkEl = document.createElement('div');
             bookmarkEl.className = 'bookmark-item p-4 bg-gray-50 rounded-lg shadow-sm card-hover';
+            bookmarkEl.dataset.id = bookmark.id;
             
             // 格式化日期
             const date = new Date(bookmark.created_at);
@@ -822,11 +823,26 @@ class App {
         
         // 重新加载筛选选项
         this.loadFilterOptions();
-        
+
         // 重新加载创建页面的标签、书名和作者下拉菜单
         this.loadCreatePageTagOptions();
         this.loadCreatePageTitleOptions();
         this.loadCreatePageAuthorOptions();
+
+        // 如果有需要高亮的书签，滚动到该位置
+        if (highlightBookmarkId) {
+            setTimeout(() => {
+                const targetBookmark = bookmarkList.querySelector(`[data-id="${highlightBookmarkId}"]`);
+                if (targetBookmark) {
+                    targetBookmark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // 添加高亮效果
+                    targetBookmark.classList.add('highlight-bookmark');
+                    setTimeout(() => {
+                        targetBookmark.classList.remove('highlight-bookmark');
+                    }, 2000);
+                }
+            }, 100);
+        }
     }
 
     // 渲染标签列表

@@ -136,6 +136,8 @@ class StorageManager {
         if (index !== -1) {
             // 更新现有书签
             bookmarks[index] = { ...bookmarks[index], ...bookmark };
+            localStorage.setItem(this.BOOKMARKS_KEY, JSON.stringify(bookmarks));
+            return { bookmarks, newBookmarkId: bookmark.id };
         } else {
             // 添加新书签
             const newBookmark = {
@@ -144,10 +146,9 @@ class StorageManager {
                 ...bookmark
             };
             bookmarks.push(newBookmark);
+            localStorage.setItem(this.BOOKMARKS_KEY, JSON.stringify(bookmarks));
+            return { bookmarks, newBookmarkId: newBookmark.id };
         }
-
-        localStorage.setItem(this.BOOKMARKS_KEY, JSON.stringify(bookmarks));
-        return bookmarks;
     }
 
     // 删除书签
