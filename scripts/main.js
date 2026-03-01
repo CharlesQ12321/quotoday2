@@ -834,14 +834,15 @@ class App {
             setTimeout(() => {
                 const targetBookmark = bookmarkList.querySelector(`[data-id="${highlightBookmarkId}"]`);
                 if (targetBookmark) {
-                    targetBookmark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // 滚动到页面底部，让新书签显示在可视区域
+                    targetBookmark.scrollIntoView({ behavior: 'smooth', block: 'end' });
                     // 添加高亮效果
                     targetBookmark.classList.add('highlight-bookmark');
                     setTimeout(() => {
                         targetBookmark.classList.remove('highlight-bookmark');
                     }, 2000);
                 }
-            }, 100);
+            }, 300);
         }
     }
 
