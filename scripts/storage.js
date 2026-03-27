@@ -260,7 +260,7 @@ class StorageManager {
         const settings = this.getSettings();
         
         const exportData = {
-            version: '1.0.0',
+            version: '1.0.1',
             export_date: new Date().toISOString(),
             data: {
                 bookmarks,
