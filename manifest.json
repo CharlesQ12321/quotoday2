@@ -2,12 +2,12 @@
   "name": "每日一签 - Quotoday",
   "short_name": "每日一签",
   "description": "记录每日读书书签，管理阅读笔记",
-  "start_url": "/",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#3B82F6",
   "theme_color": "#3B82F6",
   "orientation": "portrait",
-  "scope": "/",
+  "scope": ".",
   "lang": "zh-CN",
   "icons": [
     {

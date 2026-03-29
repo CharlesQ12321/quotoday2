@@ -199,8 +199,66 @@
     </style>
     <link rel="stylesheet" href="styles/base.css">
     <link rel="stylesheet" href="styles/style1.css" id="current-style">
+    <style>
+        /* 启动画面样式 */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        }
+        #splash-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        #splash-screen img {
+            width: 120px;
+            height: 120px;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: splashPulse 2s ease-in-out infinite;
+        }
+        #splash-screen .splash-text {
+            margin-top: 20px;
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+        #splash-screen .splash-loading {
+            margin-top: 30px;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: splashSpin 1s linear infinite;
+        }
+        @keyframes splashPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        @keyframes splashSpin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- 启动画面 -->
+    <div id="splash-screen">
+        <img src="生成读书软件图标.png" alt="每日一签">
+        <div class="splash-text">每日一签</div>
+        <div class="splash-loading"></div>
+    </div>
+    
     <!-- 主内容区 -->
     <div class="flex-1 overflow-y-auto hide-scrollbar" style="max-height: calc(100vh - 80px); padding-bottom: 20px;">
             <!-- 首页 -->
@@ -794,5 +852,37 @@
     <script src="scripts/bookmark.js"></script>
     <script src="scripts/tag.js"></script>
     <script src="scripts/share.js"></script>
+    
+    <!-- 启动画面控制 -->
+    <script>
+        // 页面加载完成后隐藏启动画面
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const splash = document.getElementById('splash-screen');
+                if (splash) {
+                    splash.classList.add('hidden');
+                    // 完全隐藏后从DOM中移除
+                    setTimeout(() => {
+                        splash.style.display = 'none';
+                    }, 500);
+                }
+            }, 1500); // 显示1.5秒后隐藏
+        });
+    </script>
+    
+    <!-- Service Worker 注册 -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((registration) => {
+                        console.log('SW registered:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('SW registration failed:', error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>
