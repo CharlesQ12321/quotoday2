@@ -595,7 +595,7 @@
                             <div class="space-y-2">
                                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                     <span class="text-gray-700">版本</span>
-                                    <span class="text-gray-500">1.0.1</span>
+                                    <span id="app-version-display" class="text-gray-500">1.0.2</span>
                                 </div>
                                 <a href="https://space.bilibili.com/397844590?spm_id_from=333.788.upinfo.head.click" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
                                     <span class="text-gray-700">开发者</span>
@@ -806,9 +806,20 @@
     <script src="scripts/tag.js"></script>
     <script src="scripts/share.js"></script>
     
-    <!-- 应用版本号 - 每次更新项目时修改这个版本号 -->
+    <!-- 
+        应用版本号 - 每次更新项目时只需修改这里即可
+        注意：同时需要修改 sw.js 中的 CACHE_VERSION 为相同版本号
+    -->
     <script>
         window.APP_VERSION = '1.0.2';
+        
+        // 页面加载完成后，更新设置页面显示的版本号
+        document.addEventListener('DOMContentLoaded', () => {
+            const versionDisplay = document.getElementById('app-version-display');
+            if (versionDisplay) {
+                versionDisplay.textContent = window.APP_VERSION;
+            }
+        });
     </script>
     
     <!-- Service Worker 注册 -->
