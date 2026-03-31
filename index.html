@@ -635,6 +635,10 @@
                                     <span class="text-gray-700">导入数据</span>
                                     <i class="fa fa-arrow-right text-gray-400"></i>
                                 </button>
+                                <button id="clear-cache-btn" class="btn-secondary w-full flex items-center justify-between">
+                                    <span class="text-gray-700">清除缓存</span>
+                                    <i class="fa fa-refresh text-gray-400"></i>
+                                </button>
                                 <button class="btn-danger w-full flex items-center justify-between">
                                     <span>清除数据</span>
                                     <i class="fa fa-arrow-right"></i>
@@ -876,17 +880,95 @@
         });
     </script>
     
+    <!-- 应用版本号 - 每次更新项目时修改这个版本号 -->
+    <script>
+        window.APP_VERSION = '1.0.2';
+    </script>
+    
     <!-- Service Worker 注册 -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
                     .then((registration) => {
-                        console.log('SW registered:', registration.scope);
+                        console.log('[App] SW registered:', registration.scope);
+                        
+                        // 监听 Service Worker 更新
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            console.log('[App] SW update found');
+                            
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // 新的 Service Worker 已安装，等待激活
+                                    console.log('[App] New SW installed, waiting for activation');
+                                    showUpdateNotification(newWorker);
+                                }
+                            });
+                        });
+                        
+                        // 定期检查更新（每30分钟）
+                        setInterval(() => {
+                            console.log('[App] Checking for SW update...');
+                            registration.update();
+                        }, 30 * 60 * 1000);
                     })
                     .catch((error) => {
-                        console.log('SW registration failed:', error);
+                        console.log('[App] SW registration failed:', error);
                     });
+                
+                // 监听 Service Worker 消息
+                navigator.serviceWorker.addEventListener('message', (event) => {
+                    if (event.data.type === 'SW_ACTIVATED') {
+                        console.log('[App] SW activated, version:', event.data.version);
+                        // 刷新页面以使用最新版本
+                        window.location.reload();
+                    }
+                });
+            });
+        }
+        
+        // 显示更新提示
+        function showUpdateNotification(worker) {
+            // 创建一个更新提示条
+            const updateBar = document.createElement('div');
+            updateBar.id = 'update-notification';
+            updateBar.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+                    color: white;
+                    padding: 12px 16px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    z-index: 100000;
+                    font-size: 14px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                ">
+                    <span>🎉 发现新版本，点击更新获取最新内容</span>
+                    <button id="update-app-btn" style="
+                        background: white;
+                        color: #3B82F6;
+                        border: none;
+                        padding: 6px 16px;
+                        border-radius: 20px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        font-size: 13px;
+                    ">立即更新</button>
+                </div>
+            `;
+            document.body.appendChild(updateBar);
+            
+            // 添加更新按钮事件
+            document.getElementById('update-app-btn').addEventListener('click', () => {
+                // 发送消息给 Service Worker 跳过等待
+                worker.postMessage('SKIP_WAITING');
+                updateBar.remove();
             });
         }
     </script>

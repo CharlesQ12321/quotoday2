@@ -581,6 +581,11 @@ class App {
             }
         });
 
+        // 清除缓存按钮
+        document.getElementById('clear-cache-btn')?.addEventListener('click', () => {
+            this.clearAppCache();
+        });
+
         // 标签编辑按钮
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('fa-edit') && e.target.closest('.tag-item')) {
@@ -2748,6 +2753,53 @@ class App {
             this.stopCamera();
             this.previewImage(file);
         }, 'image/jpeg', 0.9);
+    }
+
+    // 清除应用缓存
+    async clearAppCache() {
+        if (!confirm('确定要清除应用缓存吗？这将刷新页面以获取最新版本。')) {
+            return;
+        }
+
+        try {
+            this.showLoading();
+            console.log('[App] Clearing cache...');
+
+            // 1. 注销 Service Worker
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (const registration of registrations) {
+                    await registration.unregister();
+                    console.log('[App] Service Worker unregistered');
+                }
+            }
+
+            // 2. 清除 Cache Storage
+            if ('caches' in window) {
+                const cacheNames = await caches.keys();
+                for (const cacheName of cacheNames) {
+                    await caches.delete(cacheName);
+                    console.log('[App] Cache deleted:', cacheName);
+                }
+            }
+
+            // 3. 显示成功提示
+            this.hideLoading();
+            this.showSuccessToast('缓存已清除，即将刷新页面');
+
+            // 4. 延迟后刷新页面（强制从服务器获取最新版本）
+            setTimeout(() => {
+                // 添加时间戳参数强制刷新
+                const url = new URL(window.location.href);
+                url.searchParams.set('_t', Date.now());
+                window.location.href = url.toString();
+            }, 1500);
+
+        } catch (error) {
+            console.error('[App] Clear cache error:', error);
+            this.hideLoading();
+            this.showErrorToast('清除缓存失败，请稍后重试');
+        }
     }
 }
 
