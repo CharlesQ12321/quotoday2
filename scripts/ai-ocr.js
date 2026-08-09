@@ -5,7 +5,7 @@ class AIOCR {
         // GLM-4.6V API配置
         this.apiConfig = {
             endpoint: 'https://open.bigmodel.cn/api/paas/v4/chat/completions', // GLM-4.6V API端点
-            apiKey: 'd54dc5bab2624d67b0525a82958b7ca9.F5u7mVKLCD5NHQt5', // API Key
+            apiKey: '434f06f4712b4721b9256576bed72f58.Ri4CcwszHI9iiCpI', // API Key
             model: 'glm-4.6v' // GLM-4.6V模型
         };
     }
