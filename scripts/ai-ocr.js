@@ -2,11 +2,11 @@
 
 class AIOCR {
     constructor() {
-        // GLM-4V API配置（通过Nginx反向代理，API Key由服务端注入）
+        // Qwen-VL API配置（通过Nginx反向代理，API Key由服务端注入）
         this.apiConfig = {
             endpoint: '/api/ocr', // Nginx反向代理地址
             apiKey: '', // API Key已移至Nginx配置中，前端不再携带
-            model: 'glm-4v' // GLM-4V视觉模型
+            model: 'qwen-vl-ocr' // 通义千问OCR专用模型
         };
     }
 
