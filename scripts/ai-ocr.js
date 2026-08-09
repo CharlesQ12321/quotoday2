@@ -2,10 +2,10 @@
 
 class AIOCR {
     constructor() {
-        // Qwen-VL API配置（通过Nginx反向代理，API Key由服务端注入）
+        // Qwen-VL API配置（阿里云MaaS OpenAI兼容接口）
         this.apiConfig = {
-            endpoint: '/api/ocr', // Nginx反向代理地址
-            apiKey: '', // API Key已移至Nginx配置中，前端不再携带
+            endpoint: 'https://llm-hu0rqv0mj8b9rakc.cn-beijing.maas.aliyuncs.com/compatible-mode/v1/chat/completions',
+            apiKey: 'sk-ws-H.ERPIEXX.have.MEUCIQD5q3TYK1qRBkFX8hHWVNkoUOmLDNrU9iRSymMGTgZOkAIgZ2fjl6m6_S7-5sfrR8BdZQbpn5cQWeRIyp8TvBli078',
             model: 'qwen-vl-ocr' // 通义千问OCR专用模型
         };
     }
@@ -56,7 +56,8 @@ class AIOCR {
             const response = await fetch(this.apiConfig.endpoint, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.apiConfig.apiKey}`
                 },
                 body: requestBody
             });

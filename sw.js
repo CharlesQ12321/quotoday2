@@ -1,5 +1,5 @@
 // 缓存版本号 - 每次更新项目时修改这个版本号
-const CACHE_VERSION = '1.0.3';
+const CACHE_VERSION = '1.0.4';
 const CACHE_NAME = `quotoday-v${CACHE_VERSION}`;
 
 const urlsToCache = [
@@ -67,29 +67,6 @@ self.addEventListener('activate', (event) => {
 
 // 拦截请求并提供缓存内容
 self.addEventListener('fetch', (event) => {
-  // 对JS文件使用网络优先策略，确保始终加载最新代码
-  const isJSRequest = event.request.url.endsWith('.js');
-
-  if (isJSRequest) {
-    event.respondWith(
-      fetch(event.request)
-        .then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            const responseToCache = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseToCache);
-            });
-          }
-          return networkResponse;
-        })
-        .catch(() => {
-          // 网络失败时回退到缓存
-          return caches.match(event.request);
-        })
-    );
-    return;
-  }
-
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
