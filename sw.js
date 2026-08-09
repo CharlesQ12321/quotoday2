@@ -67,6 +67,29 @@ self.addEventListener('activate', (event) => {
 
 // 拦截请求并提供缓存内容
 self.addEventListener('fetch', (event) => {
+  // 对JS文件使用网络优先策略，确保始终加载最新代码
+  const isJSRequest = event.request.url.endsWith('.js');
+
+  if (isJSRequest) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          // 网络失败时回退到缓存
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
@@ -90,7 +113,7 @@ self.addEventListener('fetch', (event) => {
                 return response;
               });
           }
-          
+
           // 对于其他资源，后台更新缓存
           fetch(event.request)
             .then((networkResponse) => {
@@ -102,10 +125,10 @@ self.addEventListener('fetch', (event) => {
               }
             })
             .catch(() => {});
-          
+
           return response;
         }
-        
+
         // 缓存中没有，发起网络请求
         return fetch(event.request)
           .then((networkResponse) => {
