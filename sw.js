@@ -1,5 +1,5 @@
 // 缓存版本号 - 每次更新项目时修改这个版本号
-const CACHE_VERSION = '1.0.2';
+const CACHE_VERSION = '1.0.3';
 const CACHE_NAME = `quotoday-v${CACHE_VERSION}`;
 
 const urlsToCache = [
