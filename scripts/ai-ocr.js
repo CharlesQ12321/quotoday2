@@ -2,11 +2,11 @@
 
 class AIOCR {
     constructor() {
-        // GLM-4.6V API配置
+        // GLM-4V API配置（通过Nginx反向代理，API Key由服务端注入）
         this.apiConfig = {
-            endpoint: 'https://open.bigmodel.cn/api/paas/v4/chat/completions', // GLM-4.6V API端点
-            apiKey: '434f06f4712b4721b9256576bed72f58.Ri4CcwszHI9iiCpI', // API Key
-            model: 'glm-4.6v' // GLM-4.6V模型
+            endpoint: '/api/ocr', // Nginx反向代理地址
+            apiKey: '', // API Key已移至Nginx配置中，前端不再携带
+            model: 'glm-4v' // GLM-4V视觉模型
         };
     }
 
@@ -56,8 +56,7 @@ class AIOCR {
             const response = await fetch(this.apiConfig.endpoint, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.apiConfig.apiKey}`
+                    'Content-Type': 'application/json'
                 },
                 body: requestBody
             });
