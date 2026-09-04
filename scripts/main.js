@@ -665,7 +665,7 @@ class App {
             if (!apiKeyInput) return;
             const apiKey = apiKeyInput.value.trim();
             if (!apiKey) {
-                this.showErrorToast('请输入 API Key');
+                this.showErrorToast('请输入 Qwen API Key');
                 return;
             }
             storage.saveApiKey(apiKey);

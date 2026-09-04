@@ -40,7 +40,7 @@ class AIOCR {
 
             // 检查 API Key 是否存在
             if (!apiConfig.apiKey) {
-                throw new Error('请先在设置页面配置 API Key');
+                throw new Error('请先在设置页面配置 Qwen API Key');
             }
 
             // 构建API请求体
