@@ -658,6 +658,33 @@ class App {
                 });
             }
         });
+
+        // API Key 保存
+        document.getElementById('save-api-key-btn')?.addEventListener('click', () => {
+            const apiKeyInput = document.getElementById('api-key-input');
+            if (!apiKeyInput) return;
+            const apiKey = apiKeyInput.value.trim();
+            if (!apiKey) {
+                this.showErrorToast('请输入 API Key');
+                return;
+            }
+            storage.saveApiKey(apiKey);
+            this.showSuccessToast('API Key 已保存');
+        });
+
+        // API Key 清空
+        document.getElementById('clear-api-key-btn')?.addEventListener('click', () => {
+            const apiKeyInput = document.getElementById('api-key-input');
+            if (!apiKeyInput) return;
+            storage.clearApiKey();
+            apiKeyInput.value = '';
+            this.showSuccessToast('API Key 已清空');
+        });
+
+        // 进入设置页面时加载已保存的 API Key
+        document.querySelector('[data-page="settings-page"]')?.addEventListener('click', () => {
+            this.loadApiKeyToInput();
+        });
     }
 
     // 页面导航
@@ -1894,6 +1921,16 @@ class App {
     // 显示错误提示
     showErrorToast(message) {
         this.showToast(message, 'error');
+    }
+
+    // 加载已保存的 API Key 到输入框
+    loadApiKeyToInput() {
+        const apiKeyInput = document.getElementById('api-key-input');
+        if (!apiKeyInput) return;
+        const savedKey = storage.getApiKey();
+        if (savedKey) {
+            apiKeyInput.value = savedKey;
+        }
     }
 
     // 显示加载状态

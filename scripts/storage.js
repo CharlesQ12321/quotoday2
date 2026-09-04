@@ -116,6 +116,24 @@ class StorageManager {
         }
     }
 
+    // API Key 存储键名
+    static get API_KEY_KEY() { return 'quotoday_api_key'; }
+
+    // 获取 API Key
+    getApiKey() {
+        return localStorage.getItem(StorageManager.API_KEY_KEY) || '';
+    }
+
+    // 保存 API Key
+    saveApiKey(apiKey) {
+        localStorage.setItem(StorageManager.API_KEY_KEY, apiKey);
+    }
+
+    // 清空 API Key
+    clearApiKey() {
+        localStorage.removeItem(StorageManager.API_KEY_KEY);
+    }
+
     // 获取所有书签
     getBookmarks() {
         const bookmarks = localStorage.getItem(this.BOOKMARKS_KEY);

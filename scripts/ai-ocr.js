@@ -2,11 +2,22 @@
 
 class AIOCR {
     constructor() {
-        // Qwen-VL API配置（阿里云MaaS OpenAI兼容接口）
-        this.apiConfig = {
+        // 默认配置 - API Key 从 storage 获取
+        this.defaultConfig = {
             endpoint: 'https://llm-hu0rqv0mj8b9rakc.cn-beijing.maas.aliyuncs.com/compatible-mode/v1/chat/completions',
-            apiKey: 'sk-ws-H.ERPIEXX.have.MEUCIQD5q3TYK1qRBkFX8hHWVNkoUOmLDNrU9iRSymMGTgZOkAIgZ2fjl6m6_S7-5sfrR8BdZQbpn5cQWeRIyp8TvBli078',
             model: 'qwen-vl-ocr' // 通义千问OCR专用模型
+        };
+    }
+
+    // 获取当前 API 配置，优先使用用户配置的 API Key
+    getApiConfig() {
+        let apiKey = '';
+        if (window.storage) {
+            apiKey = window.storage.getApiKey();
+        }
+        return {
+            ...this.defaultConfig,
+            apiKey: apiKey
         };
     }
 
@@ -24,9 +35,17 @@ class AIOCR {
             console.log('Step 2: Converted image to base64');
             console.log('Base64 image length:', base64Image.length);
 
+            // 获取 API 配置
+            const apiConfig = this.getApiConfig();
+
+            // 检查 API Key 是否存在
+            if (!apiConfig.apiKey) {
+                throw new Error('请先在设置页面配置 API Key');
+            }
+
             // 构建API请求体
             const requestBody = JSON.stringify({
-                model: this.apiConfig.model,
+                model: apiConfig.model,
                 messages: [
                     {
                         role: "user",
@@ -52,12 +71,12 @@ class AIOCR {
             console.log('Step 3: Built API request');
 
             // 调用API
-            console.log('Step 4: Sending API request to:', this.apiConfig.endpoint);
-            const response = await fetch(this.apiConfig.endpoint, {
+            console.log('Step 4: Sending API request to:', apiConfig.endpoint);
+            const response = await fetch(apiConfig.endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.apiConfig.apiKey}`
+                    'Authorization': `Bearer ${apiConfig.apiKey}`
                 },
                 body: requestBody
             });
